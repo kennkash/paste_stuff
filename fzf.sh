@@ -31,7 +31,18 @@ fo() {
 writecmd (){ perl -e 'ioctl STDOUT, 0x5412, $_ for split //, do{ chomp($_ = <>); $_ }' ; }
 
 fhe() {
-  ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed -re 's/^\s*[0-9]+\s*//' | writecmd
+  local cmd
+  cmd=$(
+    history |
+      fzf +s --tac |
+      sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//'
+  ) || return
+
+  [[ -n $cmd ]] || return
+
+  # Replace the current readline buffer
+  READLINE_LINE="$cmd"
+  READLINE_POINT=${#READLINE_LINE}
 }
 
 
