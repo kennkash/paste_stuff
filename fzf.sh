@@ -46,18 +46,18 @@ fhe() {
 }
 
 
-fkill() {
-    local pid
-    if [ "$UID" != "0" ]; then
-        pid=$(ps -f -u $UID | sed 1d | fzf -m | awk '{print $2}')
-    else
-        pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
-    fi
+fkill_listen() {
+  local sig="${1:-9}"
+  local pids
 
-    if [ "x$pid" != "x" ]
-    then
-        echo $pid | xargs kill -${1:-9}
-    fi
+  pids=$(
+    ss -ltnp 2>/dev/null | tail -n +2 |
+      fzf -m --prompt='LISTEN> ' --header='Select listener(s) to kill' |
+      sed -nE 's/.*pid=([0-9]+).*/\1/p' |
+      sort -u
+  ) || return
+
+  [[ -n "$pids" ]] && echo "$pids" | xargs -r kill -"${sig}"
 }
 
 
