@@ -8,14 +8,23 @@ export FZF_DEFAULT_OPTS="\
 
 fo() {
   local file
-  # We use git ls-files as the source, falling back to find if not in a git repo
-  file=$( (git ls-files 2>/dev/null || find . -maxdepth 3 -not -path '*/.*') | fzf --query="$1" --select-1 --exit-0 --preview 'bat --color=always {} 2>/dev/null || cat {}')
+  file=$(
+    find . \
+      -type f \
+      -not -path '*/.git/*' \
+      2>/dev/null |
+    fzf --query="$1" --select-1 --exit-0 \
+      --header-label ' File Type ' \
+      --preview 'bat --color=always --style=numbers {} 2>/dev/null || cat {}' \
+      --bind 'focus:+transform-header:file --brief {} 2>/dev/null || echo "No file selected"' \
+      --bind 'focus:transform-preview-label:[[ -n {} ]] && printf " Previewing [%s] " {}' \
+      \
+      --color 'header-border:#ED8796,header-label:#ED8796' \
+      --color 'preview-border:#C6A0F6,preview-label:#C6A0F6'
+  )
 
-  if [[ -n "$file" ]]; then
-    code-server "$file"
-  fi
+  [[ -n "$file" ]] && code-server "$file"
 }
-
 
 
 # fhe - repeat history edit
