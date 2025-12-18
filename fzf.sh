@@ -47,18 +47,16 @@ fhe() {
 
 
 fkill_listen() {
-  local sig="${1:-9}"
+  local sig="${1:-15}"   # default SIGTERM; use 9 to force
   local pids
 
   pids=$(
-    ss -ltnp 2>/dev/null | tail -n +2 |
+    netstat -tnlp 2>/dev/null | awk '$6=="LISTEN"' |
       fzf -m --prompt='LISTEN> ' --header='Select listener(s) to kill' |
-      sed -nE 's/.*pid=([0-9]+).*/\1/p' |
+      awk '{print $NF}' |            # e.g. 64565/python3.10
+      awk -F/ '$1 ~ /^[0-9]+$/ {print $1}' |
       sort -u
   ) || return
 
   [[ -n "$pids" ]] && echo "$pids" | xargs -r kill -"${sig}"
 }
-
-
-
