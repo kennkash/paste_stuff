@@ -1,0 +1,113 @@
+## Macro title: SamsungConnect Panel
+## Macro has a body: Y
+## Body processing: Rendered
+## Output: HTML
+##
+## Developed by: Kennedy Kashmiry
+## Date created: 09/11/2025
+## Installed by: Kennedy Kashmiry
+## -------------------------------------------------
+
+## -------------------------------------------------
+##  Parameter definitions (used by Confluence UI and for documentation)
+## -------------------------------------------------
+## @param title:title=Panel Title|type=string|required=true|desc=Enter the title that will appear in the panel header
+## @param borderColor:title=Panel Border Color|type=enum|enumValues=white,black,#d9d7d6,#1428a0,#2138e3,#0077c8,#00b3e3,#00c3b2,#8093dc,#97d653,#ffb546,#ff4337|default=white|desc=Select a color for the panel border
+## @param titleColor:title=Title Text Color|type=enum|enumValues=white,black,#d9d7d6,#1428a0,#2138e3,#0077c8,#00b3e3,#00c3b2,#8093dc,#97d653,#ffb546,#ff4337|default=#fff|desc=Select a color for the title text
+## @param titleBGColor:title=Title Background Color|type=enum|enumValues=white,black,#d9d7d6,#1428a0,#2138e3,#0077c8,#00b3e3,#00c3b2,#8093dc,#97d653,#ffb546,#ff4337|default=#d9d7d6|desc=Select a color for the background of the panel title
+##
+## -------------------------------------------------
+
+## -------------------------------------------------
+## Velocity template (HTML output)
+## -------------------------------------------------
+<ac:structured-macro ac:macro-id="e202b70b-78d7-434c-9d2c-99dcc9b361ad" ac:name="html" ac:schema-version="1">
+  <ac:plain-text-body><![CDATA[<style>
+:root {  
+--sas-color: #1428a0;  
+--SamsungSharpSans: SamsungSharpSans, 
+                 -apple-system, 
+                 BlinkMacSystemFont, 
+                 Segoe UI, 
+                 Roboto, 
+                 Oxygen, 
+                 Ubuntu, 
+                 Fira Sans, 
+                 Droid Sans, 
+                 Helvetica Neue, 
+                 sans-serif;
+
+--SamsungOne: SamsungOne, 
+                 -apple-system, 
+                 BlinkMacSystemFont, 
+                 Segoe UI, 
+                 Roboto, 
+                 Oxygen, 
+                 Ubuntu, 
+                 Fira Sans, 
+                 Droid Sans, 
+                 Helvetica Neue, 
+                 sans-serif;
+}
+@font-face {
+    font-family: 'SamsungSharpSans';
+    src: url('https://confluence.samsungaustin.com/download/attachments/595478199/SamsungSharpSans.ttf') format('truetype');
+}
+
+@font-face {  
+    font-family: 'SamsungOne';  
+    src: url('https://confluence.samsungaustin.com/download/attachments/595478199/SamsungOne.ttf') format('truetype');  
+}  
+
+p, ol, ul, li {  
+font-family: var(--SamsungOne) !important;  
+color: black !important;
+}  
+ 
+/* Samsung Font */
+.pt .panelHeader {
+    line-height: 1.5em !important;
+    margin-bottom: 10px !important;
+    font-size: 20px;
+    font-family: var(--SamsungSharpSans);
+}
+
+/* Table header background color */
+.wiki-content table.tablesorter>thead>tr>th {
+    background: #ffebcd center right no-repeat;
+}
+
+/* Table border color and font style */
+.confluenceTh, .confluenceTd{
+    border: 1px solid #ffd699;
+    font-family: var(--SamsungOne);
+    color:  black;
+}
+
+/* Table header style */
+.wiki-content table.tablesorter>thead>tr>th>div>button, button.headerButton {
+    color:  black;
+}
+
+/* Style for contact button */
+.confluenceTable a.contentf-button.aui-button.conf-macro.output-inline {
+    color: black !important;
+}
+
+</style> ]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<ac:structured-macro ac:macro-id="5fbcac18-4cc2-468f-abcc-6f35f7a805ed" ac:name="div" ac:schema-version="1">
+  <ac:parameter ac:name="class">pt</ac:parameter>
+  <ac:rich-text-body>
+    <ac:structured-macro ac:macro-id="57b82446-5837-4326-b639-93a24f421428" ac:name="panel" ac:schema-version="1">
+      <ac:parameter ac:name="borderColor">$!paramborderColor</ac:parameter>
+      <ac:parameter ac:name="titleColor">$!paramtitleColor</ac:parameter>
+      <ac:parameter ac:name="titleBGColor">$!paramtitleBGColor</ac:parameter>
+      <ac:parameter ac:name="title">$!paramtitle</ac:parameter>
+      <ac:rich-text-body>
+         $body
+      </ac:rich-text-body>
+    </ac:structured-macro>
+  </ac:rich-text-body>
+</ac:structured-macro>
