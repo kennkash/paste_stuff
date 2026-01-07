@@ -1,103 +1,99 @@
-import com.atlassian.confluence.pages.Attachment
-import com.atlassian.confluence.pages.Page
-import static org.apache.commons.collections.CollectionUtils.*
 import com.onresolve.scriptrunner.runner.rest.common.CustomEndpointDelegate
 import groovy.transform.BaseScript
+
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.MultivaluedMap
 import javax.ws.rs.core.Response
- 
+
 @BaseScript CustomEndpointDelegate delegate
- 
-deleteGhostAttachments { MultivaluedMap queryParams ->
-    def currentPageID = queryParams.getFirst("pageID") as Long
 
-def dialog =
-        """<section role="dialog" id="sr-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true" data-aui-remove-on-hide="true">
-            <header class="aui-dialog2-header" style="background: #0052CC">
-                <h2 class="aui-dialog2-header-main" style="color: #FFFFFF">Remove Ghost Attachments</h2>
-            </header>
-            <div class="aui-dialog2-content">
-                <p>When you select 'Delete Ghost Attachments' You will have successfully initiated the removal of hidden attachments that exist in the database for this page but are not displayed on the page itself. These "ghost attachments" may clutter the database without serving any visible purpose on the page. <br><br> To learn more about this action and its implications, you can visit the designated information page linked below. Please note that this operation will exclusively target attachments that are not currently visible on the page, ensuring a streamlined and efficient cleanup process.</p><br><a href="https://confluence.samsungaustin.com/x/kD2vEg" target="_blank">More Details</a>
-            </div>
-            <footer class="aui-dialog2-footer">
-                <div class="aui-dialog2-footer-actions">
-                    <button id="dialog-submit-button" class="aui-button aui-button-primary">Delete Ghost Attachments</button>
-                    <button id="dialog-close-button" class="aui-button aui-button-link" style="margin-left: 10px;">Close</button>
-                </div>
-                <div class="aui-dialog2-footer-hint">You only need to run this operation once per page</div>
-            </footer>
-            <script>
-  (function (\$) {
-    \$(function () {
-        // Listen for when any AJS dialog2 is shown
-        AJS.dialog2.on("show", function (e) {
-            var targetId = e.target.id;
-            // Check if the shown dialog is the one you're interested in
-            if (targetId == "sr-dialog") { // Adjust the ID as necessary
-                var someDialog = AJS.dialog2(e.target);
-                
-                // Set up a click event handler for the submit button
-                \$(e.target).find("#dialog-submit-button").click(function (e) {
-                    e.preventDefault(); // Prevent the default form submission
+/**
+ * UI Fragment should call:
+ *   /rest/scriptrunner/latest/custom/resetHolidayCalKickoff
+ *
+ * This endpoint:
+ *  1) shows a flag immediately
+ *  2) fires your existing long-running GET endpoint via AJAX
+ *  3) optionally refreshes or navigates away (configurable)
+ */
+resetHolidayCalKickoff { MultivaluedMap queryParams ->
 
-                    // Optionally, change the button text or disable it to indicate processing
-                    \$(this).text('Processing...').prop('disabled', true);
-                    
-                    // Replace with your API endpoint and the appropriate currentPageID
-                    var apiEndpoint = `https://confluencestg.samsungaustin.com/rest/scriptrunner/latest/custom/deleteGhostAttachments2?pageID=${currentPageID}`;
-                    
-                    \$.ajax({
-                        url: apiEndpoint,
-                        type: "GET", // Or "POST", depending on your endpoint
-                        success: function(response) {
-                            console.log("API call was successful:", response);
-                            // Provide some immediate visual feedback that the API call was successful
-                            AJS.flag({
-                                type: 'success',
-                                title: 'Operation Successful',
-                                body: 'The page will refresh shortly.',
-                                close: 'auto'
-                            });
+    // ✅ Your existing endpoint (the one that actually does the work)
+    // If it’s on STG, keep it as absolute like your example.
+    // If you want it to run on the same host the user is on, use AJS.contextPath() + relative URL in JS.
+    String longRunnerEndpoint = "/rest/scriptrunner/latest/custom/resetHolidayCal"
 
-                            // Wait 4 seconds before refreshing the page
-                            setTimeout(function() {
-                                window.location.reload(true);
-                            }, 4000);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("API call failed:", error);
-                            // Handle error, maybe display an error message
-                            AJS.flag({
-                                type: 'error',
-                                title: 'Operation Failed',
-                                body: 'Please try again later.',
-                                close: 'auto'
-                            });
-                            // Re-enable the button if there's an error
-                            \$(this).text('Try Again').prop('disabled', false);
-                        }
-                    });
-                });
+    // Optional behavior after starting:
+    // - "none"      => stay on this tiny page (not great UX)
+    // - "back"      => go back to previous page
+    // - "reload"    => reload current page (often best)
+    String afterStart = "back"
 
-                // Set up a click event handler for the close button, if needed
-                \$(e.target).find("#dialog-close-button").click(function (e) {
-                    e.preventDefault(); // Prevent the default action
-                    someDialog.hide();
-                    someDialog.remove();
-                });
+    String afterStartJs = (afterStart == "reload") ?
+        "window.location.reload(true);" :
+        (afterStart == "back") ?
+            "window.history.back();" :
+            "/* no nav */"
 
-                // Add any other setup or event handlers you need for this dialog
-            }
-        });
-    });
-})(AJS.\$);
+    String html = """
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Processing…</title>
+  <meta name="decorator" content="atl.general"/>
+</head>
+<body>
+<script>
+(function (\$) {
+  function kickoff() {
+    // 1) Flag immediately
+    if (window.AJS && AJS.flag) {
+      AJS.flag({
+        type: 'info',
+        title: 'Request received',
+        body: 'Your request is being processed. Please allow about 10 minutes for completion.',
+        close: 'auto'
+      });
+    }
 
-            </script>
-</section>
-        
-        """
+    // 2) Fire the real endpoint async (GET)
+    // Prefer relative + contextPath so it works in any environment (stg/prod) without hardcoding host.
+    var url = (window.AJS && AJS.contextPath)
+      ? (AJS.contextPath() + '${longRunnerEndpoint}')
+      : ('${longRunnerEndpoint}');
 
-    Response.ok().type(MediaType.TEXT_HTML).entity(dialog.toString()).build()
+    if (window.AJS && AJS.\$) {
+      AJS.\$.ajax({
+        url: url,
+        type: 'GET'
+      });
+    } else if (\$ && \$.ajax) {
+      \$.ajax({ url: url, type: 'GET' });
+    } else {
+      // super basic fallback
+      var img = new Image();
+      img.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now();
+    }
 
+    // 3) Navigate away shortly so user isn’t left on a blank page
+    setTimeout(function () {
+      ${afterStartJs}
+    }, 600);
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    kickoff();
+  } else {
+    document.addEventListener('DOMContentLoaded', kickoff);
+  }
+})(window.AJS ? AJS.\$ : window.jQuery);
+</script>
+
+<p>Starting…</p>
+</body>
+</html>
+"""
+
+    return Response.ok(html, MediaType.TEXT_HTML).build()
 }
