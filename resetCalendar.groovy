@@ -2,8 +2,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.Executors
 
-import com.atlassian.sal.api.component.ComponentLocator
-import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory
 import com.onresolve.scriptrunner.runner.rest.common.CustomEndpointDelegate
 import groovy.transform.BaseScript
 
@@ -15,7 +13,8 @@ import javax.ws.rs.core.Response
 
 resetHolidayCal { MultivaluedMap queryParams ->
 
-    String confluenceURL = "https://confluencestg.samsungaustin.com/rest/confiforms/1.0/updateFieldValue/51860671/coverage?query=!id:%5Bempty%5D&fv="
+    String confluenceURL =
+        "https://confluencestg.samsungaustin.com/rest/confiforms/1.0/updateFieldValue/51860671/coverage?query=!id:%5Bempty%5D&fv="
 
     String[] suffixes = [
         "date1:", "date2:", "date3:", "date4:", "date5:", "date6:", "date7:", "date8:",
@@ -25,35 +24,34 @@ resetHolidayCal { MultivaluedMap queryParams ->
         "opsdate12:", "opsdate13:", "opsdate14:", "opsdate15:", "opsdate16:"
     ]
 
-    List<String> urls = suffixes.collect { suffix -> confluenceURL + suffix }
+    List<String> urls = suffixes.collect { confluenceURL + it }
 
-    // Return immediately, run the long work async.
-    def threadLocalFactory = ComponentLocator.getComponent(ThreadLocalDelegateExecutorFactory)
-    def executor = threadLocalFactory.createExecutorService(Executors.newSingleThreadExecutor())
+    // 🔹 Fire-and-forget executor
+    def executor = Executors.newSingleThreadExecutor()
 
     executor.submit({
         boolean allSuccessful = true
 
         def makePutRequest = { String urlString ->
             try {
-                String bearerToken = "faketoken"
-                HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection()
-                connection.setRequestMethod("PUT")
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.setRequestProperty("Accept", "application/json")
-                connection.setRequestProperty("Authorization", "Bearer " + bearerToken)
-                connection.setDoOutput(true)
+                HttpURLConnection conn =
+                    (HttpURLConnection) new URL(urlString).openConnection()
+                conn.setRequestMethod("PUT")
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.setRequestProperty("Accept", "application/json")
+                conn.setRequestProperty("Authorization", "Bearer faketoken")
+                conn.setDoOutput(true)
 
-                int code = connection.getResponseCode()
-                if (code == HttpURLConnection.HTTP_OK) {
-                    log.warn("Successfully updated: ${urlString}")
+                int code = conn.getResponseCode()
+                if (code == 200) {
+                    log.warn("Updated: ${urlString}")
                     return true
                 } else {
-                    log.warn("Failed to update: ${urlString}. Response code: ${code}")
+                    log.warn("FAILED ${urlString} → ${code}")
                     return false
                 }
             } catch (Exception e) {
-                log.warn("Error during PUT request (${urlString}): ${e.message}", e)
+                log.warn("ERROR ${urlString}", e)
                 return false
             }
         }
@@ -64,23 +62,22 @@ resetHolidayCal { MultivaluedMap queryParams ->
             }
         }
 
-        // At this point you *cannot* reliably show a UI flag (the user isn't “waiting” on the request anymore).
-        // Best options: log + email the user + write a status somewhere.
-        log.warn("resetHolidayCal COMPLETE. allSuccessful=${allSuccessful}")
+        log.warn("resetHolidayCal finished. success=${allSuccessful}")
 
+        executor.shutdown()
     } as Runnable)
 
-    // Immediate feedback to the user
+    // 🔹 Immediate user feedback
     String flagJs = """
-      <script>
-        AJS.flag({
-          type: 'info',
-          title: 'Request received',
-          body: 'Your request is being processed. Please allow ~10 minutes for completion.',
-          close: 'auto'
-        });
-      </script>
+    <script>
+      AJS.flag({
+        type: 'info',
+        title: 'Request received',
+        body: 'Your request is being processed. Please allow about 10 minutes for completion.',
+        close: 'auto'
+      });
+    </script>
     """
 
-    return Response.ok(flagJs, MediaType.TEXT_HTML).build()
+    Response.ok(flagJs, MediaType.TEXT_HTML).build()
 }
