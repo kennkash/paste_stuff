@@ -121,7 +121,34 @@ def build_value_maps(defn_json: Dict[str, Any], target_field_names: List[str]) -
         lookups[name] = {}
 
     return lookups
+def replace_ids_with_labels(
+    entries: List[Dict[str, Any]],
+    lookups: Dict[str, Dict[str, str]],
+    fields_to_translate: List[str],
+) -> List[Dict[str, Any]]:
+    """
+    Mutates entry["fields"] so stored IDs are replaced with labels.
+    """
+    for entry in entries:
+        fields = entry.get("fields", {})
+        if not isinstance(fields, dict):
+            continue
 
+        for field_name in fields_to_translate:
+            if field_name not in fields:
+                continue
+
+            raw = fields[field_name]
+            if raw is None:
+                continue
+
+            raw_id = str(raw)
+            label = lookups.get(field_name, {}).get(raw_id)
+
+            if label is not None:
+                fields[field_name] = label  # 🔥 replace ID with label
+
+    return entries
 
 # -----------------------------
 # Apply mapping to search entries
@@ -180,6 +207,25 @@ def main():
     lookups = build_value_maps(defn_json, FIELDS_TO_TRANSLATE)
 
     translated = translate_entries(entries, lookups, FIELDS_TO_TRANSLATE)
+    TRANSLATE)
+
+    updated_entries = replace_ids_with_labels(
+        entries,
+        lookups,
+        FIELDS_TO_TRANSLATE,
+    )
+
+    # Preview
+    for e in updated_entries[:5]:
+        print(
+            {
+                "recordId": e.get("recordId"),
+                "CandidateName": e.get("fields", {}).get("CandidateName"),
+                "OfferStatus": e.get("fields", {}).get("OfferStatus"),
+                "InterviewStatus": e.get("fields", {}).get("InterviewStatus"),
+            }
+        )
+
 
     # Preview a few rows
     for e in translated[:5]:
