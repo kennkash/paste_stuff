@@ -176,3 +176,130 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+This endpoint: /rest/confiforms/1.0/search/744202791/InterviewTracking 
+
+Returns this json structure: 
+{
+  "total": 91,
+  "list": {
+    "entry": [
+      {
+        "recordId": 2,
+        "createdBy": "johndoe",
+        "created": 1760554624957,
+        "id": "32c77390-22eb-4959-9ef2-d9dc37deb19e",
+        "fields": {
+          "Shift": "D",
+          "Status": "e",
+          "HiringManagerPOC": "johndoe",
+          "OfferStatus": "c",
+          "ProposedTitle": "Tech 1/2",
+          "ActualManagerSupervisor": "janedoe",
+          "RequisitionNumber": "E123456",
+          "Department": "ETCH",
+          "InterviewStatus": "c",
+          "CandidateName": "Person 1",
+          "ProposedLevel": "b",
+          "class": "fields",
+          "Notes": "We are looking for a Senior Technician, Luis would be a good hire at a later date . \r\n\r\nSent to Randstad as possible contractor, he has declined due to pay."
+        },
+        "ownedBy": "johndoe"
+      },
+      {
+        "recordId": 3,
+        "createdBy": "johnnydoe",
+        "created": 1760558964090,
+        "id": "31c212e5-bacb-44ac-9e6f-072a4978e55d",
+        "fields": {
+          "Shift": "A",
+          "Status": "d",
+          "HiringManagerPOC": "johnnydoe",
+          "OfferStatus": "a",
+          "ProposedTitle": "Senior Tech",
+          "ActualManagerSupervisor": "jamesdoe",
+          "RequisitionNumber": "E78910212",
+          "Department": "ETCH",
+          "InterviewStatus": "c",
+          "CandidateName": "Person 2",
+          "ProposedLevel": "d",
+          "class": "fields",
+          "Notes": "Previously worked here, great tech excited to have him back"
+        },
+        "ownedBy": "johnnydoe"
+      },
+   ]
+  }
+}
+
+
+This endpoint: /rest/confiforms/1.0/definition/744202791/InterviewTracking
+
+
+Returns this where "name": "OfferStatus" is one of the fields I am trying to map for
+{
+  "formName": "InterviewTracking",
+  "fields": [
+    {
+      "viewRestrictions": "",
+      "editRestrictions": "",
+      "smartField": false,
+      "name": "LastUpdate",
+      "dbField": false,
+      "formula": false,
+      "readOnly": false,
+      "autoField": false,
+      "title": "Last Update",
+      "type": "datetime",
+      "required": false
+    },
+    {
+      "viewRestrictions": "",
+      "editRestrictions": "",
+      "smartField": false,
+      "name": "HiringManagerPOC",
+      "dbField": false,
+      "formula": false,
+      "readOnly": false,
+      "autoField": false,
+      "title": "Hiring Manager or POC",
+      "type": "usersimple",
+      "required": false
+    },
+    {
+      "editRestrictions": "",
+      "smartField": false,
+      "valuePairs": [
+        {
+          "id": "a",
+          "value": "Recommended for Hire"
+        },
+        {
+          "id": "b",
+          "value": "NOT Recommended for Hire"
+        },
+        {
+          "id": "c",
+          "value": "Decision Not Yet Made"
+        }
+      ],
+      "values": {
+        "a": "Recommended for Hire",
+        "b": "NOT Recommended for Hire",
+        "c": "Decision Not Yet Made"
+      },
+      "dbField": false,
+      "readOnly": false,
+      "autoField": false,
+      "title": "Offer Status",
+      "type": "radio_group",
+      "required": true,
+      "viewRestrictions": "",
+      "name": "OfferStatus",
+      "formula": false
+    },
+  ]
+}
+
+update the script accordingly for the json structures I have sent
