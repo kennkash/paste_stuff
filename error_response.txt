@@ -1,0 +1,483 @@
+I am going through my coworkers code and this pinia store for the front-end has these configurations for the toast messages: 
+
+// src/stores/delegatedgroups.js
+import { defineStore } from 'pinia';
+import axios from 'axios';
+import { toast } from 'vue3-toastify';
+import { usePageStore } from '@/stores/page';
+import { defaultToastOptions } from '@/config/toastOptions'
+
+const apiInstance = axios.create({
+    withCredentials: true,
+    baseURL: import.meta.env.VITE_API_URL,
+});
+
+/* ---------------------------------------------------------
+    Axios response interceptor – keep error envelope tidy
+   --------------------------------------------------------- */
+apiInstance.interceptors.response.use(
+    (resp) => resp,
+    (err) => {
+        // Check if we have a nested error response
+        if (err.response?.data?.detail &&
+            typeof err.response.data.detail === 'object' &&
+            err.response.data.detail.success !== undefined) {
+            // Use the nested error
+            err.response.data = {
+                ...err.response.data.detail,
+                originalError: err.response.data
+            };
+        }
+
+        const hasEnvelope = err.response?.data &&
+                            typeof err.response.data === 'object' &&
+                            'success' in err.response.data;
+
+        const fallback = {
+            success: false,
+            title: err.response?.statusText ?? 'Network error',
+            error: err.message ?? 'Unknown error',
+            detail: err.response?.data?.detail || err.message
+        };
+
+        if (!hasEnvelope) {
+            err.response.data = {
+                ...fallback,
+                ...err.response.data
+            };
+        }
+        return Promise.reject(err);
+    }
+);
+
+
+/* ---------------------------------------------------------
+    Pinia store
+   --------------------------------------------------------- */
+export const useDGStore = defineStore('delegatedgroups', () => {
+    /* -------------------------------------------------------
+        Centralised toast handling – works for both success & error
+       ------------------------------------------------------- */
+    const showToastFromEnvelope = (env) => {
+    if (env.success) {
+        const title = env.title ?? 'Success';
+        const msg = env.message ?? 'Successfully executed call';
+        toast.success(`<strong>${title}</strong> \n ${msg ? `${msg}` : ''}`, defaultToastOptions());
+    } else {
+        const title = env.title ?? 'Error';
+        // Handle array of validation errors
+        let msg = '';
+        if (Array.isArray(env.detail)) {
+            msg = env.detail
+                .map(error =>
+                    `${error.msg} (${error.loc.join('.')})` // Format like "Input should be a valid list (body.usernames)"
+                )
+                .join('\n'); // Join with newlines
+        } else {
+            msg = env.detail ?? env.error ?? env.message ?? 'Something went wrong';
+        }
+        toast.error(`<strong>${title}</strong> \n ${msg}`, defaultToastOptions());
+    }
+};
+
+    /* -------------------------------------------------------
+        allGroups()
+       ------------------------------------------------------- */
+    async function allGroups() {
+        try {
+            const { data } = await apiInstance.get('/v0/all-groups');
+            // optional: showToastFromEnvelope(data);
+            return data;
+        } catch (e) {
+            usePageStore().error({
+                title: 'axios error: all_groups',
+                code: e.response?.status,
+                message: e.message,
+            });
+        }
+    }
+
+    /* -------------------------------------------------------
+        myGroups()
+       ------------------------------------------------------- */
+    async function myGroups() {
+        try {
+            const { data } = await apiInstance.get('/v0/my-groups');
+            // optional: showToastFromEnvelope(data);
+            return data;
+        } catch (e) {
+            usePageStore().error({
+                title: 'axios error: my_groups',
+                code: e.response?.status,
+                message: e.message,
+            });
+        }
+    }
+
+    /* -------------------------------------------------------
+        confGroups()
+       ------------------------------------------------------- */
+    async function confGroups() {
+        try {
+            const { data } = await apiInstance.get('/v0/conf-internal-groups');
+            // optional: showToastFromEnvelope(data);
+            return data;
+        } catch (e) {
+            usePageStore().error({
+                title: 'axios error: conf_internal_groups',
+                code: e.response?.status,
+                message: e.message,
+            });
+        }
+    }
+
+    /* -------------------------------------------------------
+        jiraGroups()
+       ------------------------------------------------------- */
+    async function jiraGroups() {
+        try {
+            const { data } = await apiInstance.get('/v0/jira-internal-groups');
+            // optional: showToastFromEnvelope(data);
+            return data;
+        } catch (e) {
+            usePageStore().error({
+                title: 'axios error: jira_internal_groups',
+                code: e.response?.status,
+                message: e.message,
+            });
+        }
+    }
+
+
+        /* -------------------------------------------------------
+        confGroupsSearch({ q, limit })
+        ------------------------------------------------------- */
+        async function confGroupsSearch({ q, limit = 25 } = {}) {
+        try {
+            const { data } = await apiInstance.get('/v0/conf-internal-groups/search', {
+            params: { q, limit },
+            })
+            return data
+        } catch (e) {
+            usePageStore().error({
+            title: 'axios error: conf_internal_groups_search',
+            code: e.response?.status,
+            message: e.message,
+            })
+        }
+        }
+
+        /* -------------------------------------------------------
+        jiraGroupsSearch({ q, limit })
+        ------------------------------------------------------- */
+        async function jiraGroupsSearch({ q, limit = 25 } = {}) {
+        try {
+            const { data } = await apiInstance.get('/v0/jira-internal-groups/search', {
+            params: { q, limit },
+            })
+            return data
+        } catch (e) {
+            usePageStore().error({
+            title: 'axios error: jira_internal_groups_search',
+            code: e.response?.status,
+            message: e.message,
+            })
+        }
+        }
+
+
+    /* -------------------------------------------------------
+        groupOwners()
+       ------------------------------------------------------- */
+    async function groupOwners(app, group_name) {
+        try {
+            const payload = { app, group_name };
+            const { data } = await apiInstance.get('/v0/groups/owners', {
+                params: payload,
+            });
+            // optional: showToastFromEnvelope(data);
+            return data;
+        } catch (e) {
+            usePageStore().error({
+                title: 'axios error: get_delegated_group_owners',
+                code: e.response?.status,
+                message: e.message,
+            });
+        }
+    }
+
+    /* -------------------------------------------------------
+        addMember()
+       ------------------------------------------------------- */
+    async function addMember(app, group, users) {
+        try {
+            const payload = { app, group_name: group, usernames: users };
+            const { data } = await apiInstance.post('/v0/add_member', payload);
+            showToastFromEnvelope(data);
+            return data;
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+
+    /* -------------------------------------------------------
+        removeMember()
+       ------------------------------------------------------- */
+    async function removeMember(app, group, users) {
+        try {
+            const payload = {app, group_name: group, usernames: users};
+            const { data } = await apiInstance.delete('/v0/remove_member', {
+            data: payload,
+        });
+            showToastFromEnvelope(data);
+            return data;
+            
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+
+    /* -------------------------------------------------------
+        addUserOwner()
+       ------------------------------------------------------- */
+    async function addUserOwner(app, group, users) {
+        try {
+            const payload = {app, group_name: group, usernames: users };
+            const { data } = await apiInstance.post('/v0/owners/user', payload);
+            showToastFromEnvelope(data);
+            return data;
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+    /* -------------------------------------------------------
+        removeUserOwner()
+       ------------------------------------------------------- */
+    async function removeUserOwner(app, group, users, emails = undefined) {
+        try {
+            const payload = {
+                app, 
+                group_name: group, 
+                usernames: users, 
+                ...(emails && { emails }) // This adds emails only if it's truthy
+            };
+            console.log(payload)
+            const { data } = await apiInstance.delete('/v0/owners/user', {
+            data: payload,
+        });
+            showToastFromEnvelope(data);
+            return data;
+            
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+    /* -------------------------------------------------------
+        addGroupOwner()
+       ------------------------------------------------------- */
+    async function addGroupOwner(app, group, owning_groups) {
+        try {
+            const payload = {app, group_name: group, owning_group_names: owning_groups};
+            const { data } = await apiInstance.post('/v0/owners/group', payload);
+            showToastFromEnvelope(data);
+            return data;
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+
+    /* -------------------------------------------------------
+        removeGroupOwner()
+       ------------------------------------------------------- */
+    async function removeGroupOwner(app, group, owning_groups) {
+        try {
+            const payload = {app, group_name: group, owning_group_names: owning_groups};
+            const { data } = await apiInstance.delete('/v0/owners/group', {
+            data: payload,
+        });
+            showToastFromEnvelope(data);
+            return data;
+            
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+
+    /* -------------------------------------------------------
+        addDelegatedGroup()
+       ------------------------------------------------------- */
+    async function addDelegatedGroup(app, group) {
+        try {
+            const payload = { app, group_name: group };
+            const { data } = await apiInstance.post('/v0/groups/delegate', payload);
+            showToastFromEnvelope(data);
+            return data;
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+
+    /* -------------------------------------------------------
+        deleteDelegatedGroup()
+       ------------------------------------------------------- */
+    async function deleteDelegatedGroup(app, group) {
+        try {
+            const payload = {app, group_name: group};
+            const { data } = await apiInstance.delete('/v0/groups', {
+            data: payload,
+        });
+            showToastFromEnvelope(data);
+            return data;
+            
+        } catch (err) {
+            const env = err.response?.data ?? {
+                success: false,
+                title: 'Unexpected error',
+                error: err.message,
+            };
+            showToastFromEnvelope(env);
+            throw err; // let the caller know the operation failed
+        }
+    }
+
+
+    return { 
+        allGroups, 
+        myGroups, 
+        groupOwners, 
+        addMember, 
+        removeMember, 
+        confGroups, 
+        jiraGroups, 
+        confGroupsSearch,
+        jiraGroupsSearch,
+        addUserOwner, 
+        removeUserOwner, 
+        addGroupOwner, 
+        removeGroupOwner, 
+        addDelegatedGroup,
+        deleteDelegatedGroup };
+});
+
+
+
+The responses this front-end is expecting come from these FastAPI functions: 
+
+def success_response(
+    payload: Optional[Dict[str, Any]] = None,
+    *,
+    title: str = "Success",
+    message: str = "Operation completed successfully",
+) -> Dict[str, Any]:
+    """
+    Build a JSON envelope for a successful operation.
+
+    Parameters
+    ----------
+    payload : dict | None
+        The data you want to return. If ``None`` an empty dict is used.
+    title : str, optional
+        Human‑readable title of the response. Defaults to ``"Success"``.
+    message : str, optional
+        Additional explanatory text. Defaults to
+        ``"Operation completed successfully"``.
+
+    Returns
+    -------
+    dict
+        A dict that FastAPI can return directly (it will be rendered as JSON).
+    """
+    # Ensure we always have a dict – callers can omit the argument.
+    payload = payload or {}
+
+    return {
+        "success": True,
+        "title": title,
+        "message": message,
+        "payload": payload,
+    }
+
+
+def error_response(
+    detail: str,
+    *,
+    status_code: int = status.HTTP_400_BAD_REQUEST,
+    title: Optional[str] = None,
+) -> HTTPException:
+    """
+    Raise an HTTPException whose JSON body matches the envelope.
+
+    Parameters
+    ----------
+    detail : str
+        Human‑readable description of the error.
+    status_code : int, optional
+        HTTP status code for the response. Default is 400.
+    title : str | None, optional
+        Title for the error envelope. If omitted ``"Error"`` is used.
+
+    Returns
+    -------
+    HTTPException
+        The exception is *raised* by this function, so callers typically write
+        ``raise error_response(...)``.
+    """
+    body = {
+        "success": False,
+        "title": title or str(status_code),
+        "error": detail,
+        "detail": detail,
+    }
+    raise HTTPException(status_code=status_code, detail=body)
+
+
+what is the reasoning for the error_response function to be putting "detail": detail in the detail key? 
