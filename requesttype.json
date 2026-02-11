@@ -1,0 +1,245 @@
+[
+  {
+    "id": 1656,
+    "icon": 11133,
+    "name": "RV Automation",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10503",
+      "id": "10503",
+      "description": "Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+      "name": "Service Request",
+      "subtask": false,
+      "avatarId": 17800
+    },
+    "description": "For any Non-Manufacturing Execution System interactions (i.e. cloud or mage) that require RV Automation. \n\nPortal to request endpoint development or access. \n\nAccess to endpoint can be done through Cloud/MAGE/Server\n\nExisting endpoints can be found https://confluence.samsungaustin.com/x/IwpYHg",
+    "descriptionHtml": "\u003Cp\u003EFor any Non-Manufacturing Execution System interactions (i.e. cloud or mage) that require RV Automation.\u003C/p\u003E\n\u003Cp\u003EPortal to request endpoint development or access.\u003C/p\u003E\n\u003Cp\u003EAccess to endpoint can be done through Cloud/MAGE/Server\u003C/p\u003E\n\u003Cp\u003EExisting endpoints can be found \u003Ca href=\"https://confluence.samsungaustin.com/x/IwpYHg\" class=\"external-link\" target=\"_blank\" rel=\"nofollow noopener\"\u003Ehttps://confluence.samsungaustin.com/x/IwpYHg\u003C/a\u003E\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 1103,
+    "icon": 11133,
+    "name": "EARS/RISE",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10503",
+      "id": "10503",
+      "description": "Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+      "name": "Service Request",
+      "subtask": false,
+      "avatarId": 17800
+    },
+    "description": "EARS or RISE DX Improvements\n\nNote:  Issues with EARS not working should be submitted here https://jira.samsungaustin.com/plugins/servlet/desk/portal/18/create/397",
+    "descriptionHtml": "\u003Cp\u003EEARS or RISE DX Improvements\u003C/p\u003E\n\u003Cp\u003ENote: Issues with EARS not working should be submitted here \u003Ca href=\"https://jira.samsungaustin.com/plugins/servlet/desk/portal/18/create/397\" class=\"external-link\" target=\"_blank\" rel=\"nofollow noopener\"\u003Ehttps://jira.samsungaustin.com/plugins/servlet/desk/portal/18/create/397\u003C/a\u003E\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 853,
+    "icon": 11108,
+    "name": "General DX Request",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10503",
+      "id": "10503",
+      "description": "Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+      "name": "Service Request",
+      "subtask": false,
+      "avatarId": 17800
+    },
+    "description": "Request for ideas you have that you do not know how to go about resolving. This portal uses the DX Network to help start on a solution.",
+    "descriptionHtml": "\u003Cp\u003ERequest for ideas you have that you do not know how to go about resolving. This portal uses the DX Network to help start on a solution.\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 1632,
+    "icon": 11137,
+    "name": "GPM API",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10503",
+      "id": "10503",
+      "description": "Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+      "name": "Service Request",
+      "subtask": false,
+      "avatarId": 17800
+    },
+    "description": "(Not in production ETA early 2026) Submission for specific GPM Parameter API endpoint creation",
+    "descriptionHtml": "\u003Cp\u003E(Not in production ETA early 2026) Submission for specific GPM Parameter API endpoint creation\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 851,
+    "icon": 11123,
+    "name": "Jarvis Dev Request",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10503",
+      "id": "10503",
+      "description": "Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+      "name": "Service Request",
+      "subtask": false,
+      "avatarId": 17800
+    },
+    "description": "Request for Jarvis Function or Alert development  - not for problems with cloud.",
+    "descriptionHtml": "\u003Cp\u003ERequest for Jarvis Function or Alert development - not for problems with cloud.\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 1282,
+    "icon": 11131,
+    "name": "Major Change Request",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10500",
+      "id": "10500",
+      "description": "A new feature of the product, which has yet to be developed.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=11141&avatarType=issuetype",
+      "name": "New Feature",
+      "subtask": false,
+      "avatarId": 11141
+    },
+    "description": "Request a significant change to an existing DX Solution",
+    "descriptionHtml": "\u003Cp\u003ERequest a significant change to an existing DX Solution\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 1256,
+    "icon": 11101,
+    "name": "Enhancement Request ",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10500",
+      "id": "10500",
+      "description": "A new feature of the product, which has yet to be developed.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=11141&avatarType=issuetype",
+      "name": "New Feature",
+      "subtask": false,
+      "avatarId": 11141
+    },
+    "description": "Request new features or enhancements to an existing DX Solution",
+    "descriptionHtml": "\u003Cp\u003ERequest new features or enhancements to an existing DX Solution\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 1305,
+    "icon": 11139,
+    "name": "Report a Bug",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10501",
+      "id": "10501",
+      "description": "For customer support issues. Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=11142&avatarType=issuetype",
+      "name": "Support",
+      "subtask": false,
+      "avatarId": 11142
+    },
+    "description": "Submit a request to fix a bug or error with existing DX Solution",
+    "descriptionHtml": "\u003Cp\u003ESubmit a request to fix a bug or error with existing DX Solution\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  },
+  {
+    "id": 1615,
+    "icon": 11133,
+    "name": "General OPP 2.0 Inquiry",
+    "issueType": {
+      "self": "https://jirastg.samsungaustin.com/rest/api/2/issuetype/10503",
+      "id": "10503",
+      "description": "Created by JIRA Service Desk.",
+      "iconUrl": "https://jirastg.samsungaustin.com/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+      "name": "Service Request",
+      "subtask": false,
+      "avatarId": 17800
+    },
+    "description": "General Inquiry About OPP 2.0",
+    "descriptionHtml": "\u003Cp\u003EGeneral Inquiry About OPP 2.0\u003C/p\u003E",
+    "groups": [
+      {
+        "id": 169,
+        "name": "DX Development Requests"
+      }
+    ],
+    "order": 0,
+    "projectId": 13701,
+    "usedByEmailSettings": false,
+    "helpText": "",
+    "helpTextHtml": ""
+  }
+]
