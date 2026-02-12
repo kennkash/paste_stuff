@@ -1,13 +1,8 @@
-Why is step 6 on the same line as the response from step 5? 
-==> Step 5/8: Uploading to GitLab Registry...
-{"message":"201 Created"}==> Step 6/8: Committing & Generating Changelog...
-Commit Type (feat|fix|chore):
-
 #!/bin/bash
 # RAIL Portal Plugin Build and Deploy Script
 set -e 
 
-# --- Original Colors & Functions ---
+# --- Colors & Functions ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,7 +14,7 @@ print_warning() { echo -e "${YELLOW}WARNING:${NC} $1"; }
 
 # --- Step 0: Dependency Check ---
 check_dependencies() {
-    local dependencies=("npm" "atlas-mvn" "git-cliff" "curl" "git" "awk")
+    local dependencies=("npm" "atlas-mvn" "git-cliff" "curl" "git" "awk" "cut" "tr")
     for cmd in "${dependencies[@]}"; do
         if ! command -v "$cmd" &> /dev/null; then
             print_error "Dependency '$cmd' is not installed. Please install it to proceed."
@@ -33,36 +28,29 @@ PROJECT_ROOT="/mnt/${USER}/git/rail-at-sas"
 FRONTEND_DIR="${PROJECT_ROOT}/frontend"
 BACKEND_DIR="${PROJECT_ROOT}/backend"
 PROJECT_ID="123456" 
-TOKEN="your_gl_token"
+TOKEN="${GL_DEPLOY_TOKEN}"
 GITLAB_URL="https://gitlab.com"
 
 # Start Execution
 check_dependencies
 
 # Step 1: Git Pull
-print_step "Step 1/8: Pulling latest changes..."
+print_step "Step 1/9: Pulling latest changes..."
 cd "${PROJECT_ROOT}"
 git pull
 
 # Step 2: Version Management
-print_step "Step 2/8: Version Validation..."
-
-# 1. Fetch version and strip any 'Executing...' noise or whitespace
+print_step "Step 2/9: Version Validation..."
 RAW_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]' | tail -n 1 | tr -d '[:space:]')
-
-# 2. Safety check: If RAW_VERSION is empty, fall back to a safe default
 CURRENT_VERSION=${RAW_VERSION:-"1.0.0"}
 
-# 3. Increment the patch version (the robust way)
 BASE_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1-2)
 PATCH_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f3)
 SUGGESTED_VERSION="${BASE_VERSION}.$((PATCH_VERSION + 1))"
 
 echo -e "${YELLOW}Current POM version: ${CURRENT_VERSION}${NC}"
 read -p "Enter version for this release (Default suggestion: ${SUGGESTED_VERSION}): " NEW_VERSION
-
 VERSION=${NEW_VERSION:-$SUGGESTED_VERSION}
-
 
 # BLOCKER: Check GitLab Registry
 print_step "Verifying version uniqueness..."
@@ -79,7 +67,7 @@ cd "${BACKEND_DIR}"
 atlas-mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false -q
 
 # Step 3: Frontend Build
-print_step "Step 3/8: Building frontend..."
+print_step "Step 3/9: Building frontend..."
 cd "${FRONTEND_DIR}"
 if [ ! -d "node_modules" ]; then
     print_warning "node_modules not found. Installing..."
@@ -88,12 +76,12 @@ fi
 npm run build:plugin
 
 # Step 4: Backend Build
-print_step "Step 4/8: Building backend..."
+print_step "Step 4/9: Building backend..."
 cd "${BACKEND_DIR}"
 atlas-mvn clean package -DskipTests
 
 # Step 5: Process JAR & Upload
-print_step "Step 5/8: Uploading to GitLab Registry..."
+print_step "Step 5/9: Uploading to GitLab Registry..."
 cd "${BACKEND_DIR}/target"
 FINAL_JAR="rail-portal-plugin-${VERSION}.jar"
 
@@ -102,16 +90,14 @@ if [ ! -f "${FINAL_JAR}" ]; then
     exit 1
 fi
 
-# We add -s (silent) but keep --fail to ensure we see the result cleanly
 curl --fail --header "PRIVATE-TOKEN: ${TOKEN}" \
      --upload-file "${FINAL_JAR}" \
      "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages/generic/rail-portal/${VERSION}/${FINAL_JAR}"
 
-# THIS IS THE FIX: Forces a newline after the API response
-echo "" 
+echo "" # Fixes the newline issue after curl output
 
 # Step 6: Git Flow & Changelog
-print_step "Step 6/8: Committing & Generating Changelog..."
+print_step "Step 6/9: Committing Release Metadata & Generating Changelog..."
 cd "${PROJECT_ROOT}"
 
 echo -e "${YELLOW}Select Commit Type (feat|fix|chore|refactor|docs):${NC}"
@@ -121,46 +107,44 @@ read SCOPE
 echo -e "${YELLOW}Enter Description:${NC}"
 read DESC
 
-# Format the message based on whether a scope was provided
 if [ -z "$SCOPE" ]; then
     FULL_MSG="${TYPE}: ${DESC}"
 else
     FULL_MSG="${TYPE}(${SCOPE}): ${DESC}"
 fi
 
-# Stage and commit your current work
 if [[ -n $(git status -s) ]]; then
     git add .
     git commit -m "${FULL_MSG}"
-else
-    print_warning "No local changes to commit. Proceeding to release metadata..."
 fi
 
-# This is the 'Metadata' commit that git-cliff will skip in the changelog
-# We use the specific 'prepare for' syntax to satisfy your .toml skip rule
 git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
-
-# Generate Changelog
 git-cliff --tag "v${VERSION}" --output CHANGELOG.md
-
-# Amend the release metadata commit to include the updated CHANGELOG.md
 git add CHANGELOG.md
 git commit --amend --no-edit
 
-
 # Step 7: Tagging
-print_step "Step 7/8: Finalizing Git Tag..."
-git tag -a "v${VERSION}" -m "${TYPE}: ${DESC}"
+print_step "Step 7/9: Finalizing Git Tag..."
+git tag -a "v${VERSION}" -m "${FULL_MSG}"
 
 # Step 8: Final Push
-print_step "Step 8/8: Pushing code and tags to GitLab..."
+print_step "Step 8/9: Pushing code and tags to GitLab..."
 git push origin main --tags -f
+
+# Step 9: Create GitLab Release Entry
+print_step "Step 9/9: Creating Official GitLab Release..."
+# Note: We extract the latest section of the changelog to use as release notes
+NOTES=$(git-cliff --unreleased --strip all)
+
+curl --header "Content-Type: application/json" \
+     --header "PRIVATE-TOKEN: ${TOKEN}" \
+     --data "{ \"name\": \"Release ${VERSION}\", \"tag_name\": \"v${VERSION}\", \"description\": \"${NOTES}\" }" \
+     --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
 
 # Final Success Message
 echo -e "\n${GREEN}─────────────────────────────────────────────────────────────────${NC}"
 echo -e "${GREEN}✓ Release ${VERSION} is complete!${NC}"
 echo -e "${YELLOW}Artifact URL:${NC} ${GITLAB_URL}/${PROJECT_ID}/-/packages"
+echo -e "${YELLOW}Release Page:${NC} ${GITLAB_URL}/${PROJECT_ID}/-/releases"
 echo -e "${YELLOW}Tag:${NC} v${VERSION}"
-echo -e "${YELLOW}Changelog updated and pushed.${NC}"
 echo -e "${GREEN}─────────────────────────────────────────────────────────────────${NC}\n"
-
