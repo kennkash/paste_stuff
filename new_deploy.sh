@@ -51,11 +51,16 @@ git pull
 # Step 2: Version Management
 print_step "Step 2/8: Version Validation..."
 
-# Use grep to filter for lines that look like versions (X.X.X) and tail to get the last valid line
-CURRENT_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | tail -n 1)
+# 1. Fetch version and strip any 'Executing...' noise or whitespace
+RAW_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]' | tail -n 1 | tr -d '[:space:]')
 
-# Logic to suggest the next patch version
-SUGGESTED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$NF = $NF + 1;} OFS="." {print $0}')
+# 2. Safety check: If RAW_VERSION is empty, fall back to a safe default
+CURRENT_VERSION=${RAW_VERSION:-"1.0.0"}
+
+# 3. Increment the patch version (the robust way)
+BASE_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1-2)
+PATCH_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f3)
+SUGGESTED_VERSION="${BASE_VERSION}.$((PATCH_VERSION + 1))"
 
 echo -e "${YELLOW}Current POM version: ${CURRENT_VERSION}${NC}"
 read -p "Enter version for this release (Default suggestion: ${SUGGESTED_VERSION}): " NEW_VERSION
