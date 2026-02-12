@@ -102,25 +102,51 @@ if [ ! -f "${FINAL_JAR}" ]; then
     exit 1
 fi
 
+# We add -s (silent) but keep --fail to ensure we see the result cleanly
 curl --fail --header "PRIVATE-TOKEN: ${TOKEN}" \
      --upload-file "${FINAL_JAR}" \
      "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages/generic/rail-portal/${VERSION}/${FINAL_JAR}"
 
+# THIS IS THE FIX: Forces a newline after the API response
+echo "" 
+
 # Step 6: Git Flow & Changelog
 print_step "Step 6/8: Committing & Generating Changelog..."
 cd "${PROJECT_ROOT}"
-echo -e "${YELLOW}Commit Type (feat|fix|chore):${NC}"
+
+echo -e "${YELLOW}Select Commit Type (feat|fix|chore|refactor|docs):${NC}"
 read TYPE
-echo -e "${YELLOW}Description of work:${NC}"
+echo -e "${YELLOW}Enter Scope (e.g., ui, backend, nav) or leave blank:${NC}"
+read SCOPE
+echo -e "${YELLOW}Enter Description:${NC}"
 read DESC
 
-git add .
-git commit -m "${TYPE}: ${DESC}"
+# Format the message based on whether a scope was provided
+if [ -z "$SCOPE" ]; then
+    FULL_MSG="${TYPE}: ${DESC}"
+else
+    FULL_MSG="${TYPE}(${SCOPE}): ${DESC}"
+fi
+
+# Stage and commit your current work
+if [[ -n $(git status -s) ]]; then
+    git add .
+    git commit -m "${FULL_MSG}"
+else
+    print_warning "No local changes to commit. Proceeding to release metadata..."
+fi
+
+# This is the 'Metadata' commit that git-cliff will skip in the changelog
+# We use the specific 'prepare for' syntax to satisfy your .toml skip rule
+git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
 
 # Generate Changelog
 git-cliff --tag "v${VERSION}" --output CHANGELOG.md
+
+# Amend the release metadata commit to include the updated CHANGELOG.md
 git add CHANGELOG.md
 git commit --amend --no-edit
+
 
 # Step 7: Tagging
 print_step "Step 7/8: Finalizing Git Tag..."
