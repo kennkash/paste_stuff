@@ -1,3 +1,27 @@
+
+NOTES="$(git-cliff --latest --strip all)"
+
+payload="$(jq -n \
+  --arg name "Release ${VERSION}" \
+  --arg tag  "v${VERSION}" \
+  --arg desc "${NOTES}" \
+  --arg asset_name "${FINAL_JAR}" \
+  --arg asset_url  "${PACKAGE_URL}" \
+  '{
+    name: $name,
+    tag_name: $tag,
+    description: $desc,
+    assets: { links: [ { name: $asset_name, url: $asset_url, link_type: "package" } ] }
+  }'
+)"
+
+curl --fail-with-body -sS \
+  --header "Content-Type: application/json" \
+  --header "PRIVATE-TOKEN: ${TOKEN}" \
+  --data "${payload}" \
+  --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
+
+
 #!/bin/bash
 # RAIL Portal Plugin Build and Deploy Script
 set -e 
