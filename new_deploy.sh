@@ -118,3 +118,12 @@ print_step "Step 8/8: Pushing code and tags to GitLab..."
 git push origin main --tags -f
 
 print_step "✓ Release ${VERSION} completed successfully!"
+
+# Final Success Message
+echo -e "\n${GREEN}─────────────────────────────────────────────────────────────────${NC}"
+echo -e "${GREEN}✓ Release ${VERSION} is complete!${NC}"
+echo -e "${YELLOW}Artifact URL:${NC} ${GITLAB_URL}/${PROJECT_ID}/-/packages"
+echo -e "${YELLOW}Tag:${NC} v${VERSION}"
+echo -e "${YELLOW}Changelog updated and pushed.${NC}"
+echo -e "${GREEN}─────────────────────────────────────────────────────────────────${NC}\n"
+
