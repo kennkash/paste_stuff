@@ -66,16 +66,12 @@ fi
 cd "${BACKEND_DIR}"
 atlas-mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false -q
 
-# Step 3: Frontend Build
+# Step 3 & 4: Build
 print_step "Step 3/9: Building frontend..."
 cd "${FRONTEND_DIR}"
-if [ ! -d "node_modules" ]; then
-    print_warning "node_modules not found. Installing..."
-    npm install
-fi
+[ ! -d "node_modules" ] && npm install
 npm run build:plugin
 
-# Step 4: Backend Build
 print_step "Step 4/9: Building backend..."
 cd "${BACKEND_DIR}"
 atlas-mvn clean package -DskipTests
@@ -84,40 +80,33 @@ atlas-mvn clean package -DskipTests
 print_step "Step 5/9: Uploading to GitLab Registry..."
 cd "${BACKEND_DIR}/target"
 FINAL_JAR="rail-portal-plugin-${VERSION}.jar"
-
-if [ ! -f "${FINAL_JAR}" ]; then
-    print_error "JAR file not found: ${FINAL_JAR}"
-    exit 1
-fi
+PACKAGE_URL="${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages/generic/rail-portal/${VERSION}/${FINAL_JAR}"
 
 curl --fail --header "PRIVATE-TOKEN: ${TOKEN}" \
      --upload-file "${FINAL_JAR}" \
-     "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages/generic/rail-portal/${VERSION}/${FINAL_JAR}"
+     "${PACKAGE_URL}"
 
-echo "" # Fixes the newline issue after curl output
+echo "" 
 
 # Step 6: Git Flow & Changelog
 print_step "Step 6/9: Committing Release Metadata & Generating Changelog..."
 cd "${PROJECT_ROOT}"
 
-echo -e "${YELLOW}Select Commit Type (feat|fix|chore|refactor|docs):${NC}"
+echo -e "${YELLOW}Type (feat|fix|chore|refactor):${NC}"
 read TYPE
-echo -e "${YELLOW}Enter Scope (e.g., ui, backend, nav) or leave blank:${NC}"
+echo -e "${YELLOW}Scope (ui|nav|backend):${NC}"
 read SCOPE
-echo -e "${YELLOW}Enter Description:${NC}"
+echo -e "${YELLOW}Description:${NC}"
 read DESC
 
-if [ -z "$SCOPE" ]; then
-    FULL_MSG="${TYPE}: ${DESC}"
-else
-    FULL_MSG="${TYPE}(${SCOPE}): ${DESC}"
-fi
+FULL_MSG="${TYPE}(${SCOPE:-all}): ${DESC}"
 
 if [[ -n $(git status -s) ]]; then
     git add .
     git commit -m "${FULL_MSG}"
 fi
 
+# Release Anchor
 git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
 git-cliff --tag "v${VERSION}" --output CHANGELOG.md
 git add CHANGELOG.md
@@ -128,23 +117,28 @@ print_step "Step 7/9: Finalizing Git Tag..."
 git tag -a "v${VERSION}" -m "${FULL_MSG}"
 
 # Step 8: Final Push
-print_step "Step 8/9: Pushing code and tags to GitLab..."
+print_step "Step 8/9: Pushing code and tags..."
 git push origin main --tags -f
 
-# Step 9: Create GitLab Release Entry
+# Step 9: Create GitLab Release Entry with Assets
 print_step "Step 9/9: Creating Official GitLab Release..."
-# Note: We extract the latest section of the changelog to use as release notes
-NOTES=$(git-cliff --unreleased --strip all)
+# FIX: Explicitly target the new tag for the description notes
+NOTES=$(git-cliff --latest --strip all)
 
 curl --header "Content-Type: application/json" \
      --header "PRIVATE-TOKEN: ${TOKEN}" \
-     --data "{ \"name\": \"Release ${VERSION}\", \"tag_name\": \"v${VERSION}\", \"description\": \"${NOTES}\" }" \
+     --data "{
+       \"name\": \"Release ${VERSION}\",
+       \"tag_name\": \"v${VERSION}\",
+       \"description\": \"${NOTES}\",
+       \"assets\": {
+         \"links\": [{
+           \"name\": \"${FINAL_JAR}\",
+           \"url\": \"${PACKAGE_URL}\",
+           \"link_type\": \"package\"
+         }]
+       }
+     }" \
      --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
 
-# Final Success Message
-echo -e "\n${GREEN}─────────────────────────────────────────────────────────────────${NC}"
-echo -e "${GREEN}✓ Release ${VERSION} is complete!${NC}"
-echo -e "${YELLOW}Artifact URL:${NC} ${GITLAB_URL}/${PROJECT_ID}/-/packages"
-echo -e "${YELLOW}Release Page:${NC} ${GITLAB_URL}/${PROJECT_ID}/-/releases"
-echo -e "${YELLOW}Tag:${NC} v${VERSION}"
-echo -e "${GREEN}─────────────────────────────────────────────────────────────────${NC}\n"
+echo -e "\n${GREEN}✓ Release ${VERSION} complete! Artifact linked in GitLab Releases.${NC}\n"
