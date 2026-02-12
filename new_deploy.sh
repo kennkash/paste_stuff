@@ -50,7 +50,9 @@ git pull
 
 # Step 2: Version Management
 print_step "Step 2/8: Version Validation..."
-CURRENT_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+
+# Use grep to filter for lines that look like versions (X.X.X) and tail to get the last valid line
+CURRENT_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | tail -n 1)
 
 # Logic to suggest the next patch version
 SUGGESTED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$NF = $NF + 1;} OFS="." {print $0}')
@@ -59,6 +61,7 @@ echo -e "${YELLOW}Current POM version: ${CURRENT_VERSION}${NC}"
 read -p "Enter version for this release (Default suggestion: ${SUGGESTED_VERSION}): " NEW_VERSION
 
 VERSION=${NEW_VERSION:-$SUGGESTED_VERSION}
+
 
 # BLOCKER: Check GitLab Registry
 print_step "Verifying version uniqueness..."
@@ -72,7 +75,7 @@ fi
 
 # Apply version to POM
 cd "${BACKEND_DIR}"
-atlas-mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+atlas-mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false -q
 
 # Step 3: Frontend Build
 print_step "Step 3/8: Building frontend..."
