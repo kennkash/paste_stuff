@@ -1,3 +1,12 @@
+Why is the Current POM version and the Enter version for this release sections returning a bunch of executables and paths?: 
+
+Current POM version: Executing: /mnt/k.kashmiry/atlassian-plugin-sdk-8.2.10/apache-maven-3.9.5/bin/mvn  -gs /mnt/k.kashmiry/atlassian-plugin-sdk-8.2.10/apache-maven-3.9.5/conf/settings.xml help:evaluate -Dexpression=project.version -q -DforceStdout
+2.0.0
+Enter version for this release (Default suggestion: Executing: /mnt/k kashmiry/atlassian-plugin-sdk-8 2 10/apache-maven-3 9 5/bin/mvn  -gs /mnt/k kashmiry/atlassian-plugin-sdk-8 2 10/apache-maven-3 9 5/conf/settings xml help:evaluate -Dexpression=project 1
+2.0.1): 
+
+
+
 #!/bin/bash
 # RAIL Portal Plugin Build and Deploy Script
 set -e 
@@ -116,8 +125,6 @@ git tag -a "v${VERSION}" -m "${TYPE}: ${DESC}"
 # Step 8: Final Push
 print_step "Step 8/8: Pushing code and tags to GitLab..."
 git push origin main --tags -f
-
-print_step "✓ Release ${VERSION} completed successfully!"
 
 # Final Success Message
 echo -e "\n${GREEN}─────────────────────────────────────────────────────────────────${NC}"
