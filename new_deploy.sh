@@ -1,11 +1,7 @@
-Why is the Current POM version and the Enter version for this release sections returning a bunch of executables and paths?: 
-
-Current POM version: Executing: /mnt/k.kashmiry/atlassian-plugin-sdk-8.2.10/apache-maven-3.9.5/bin/mvn  -gs /mnt/k.kashmiry/atlassian-plugin-sdk-8.2.10/apache-maven-3.9.5/conf/settings.xml help:evaluate -Dexpression=project.version -q -DforceStdout
-2.0.0
-Enter version for this release (Default suggestion: Executing: /mnt/k kashmiry/atlassian-plugin-sdk-8 2 10/apache-maven-3 9 5/bin/mvn  -gs /mnt/k kashmiry/atlassian-plugin-sdk-8 2 10/apache-maven-3 9 5/conf/settings xml help:evaluate -Dexpression=project 1
-2.0.1): 
-
-
+Why is step 6 on the same line as the response from step 5? 
+==> Step 5/8: Uploading to GitLab Registry...
+{"message":"201 Created"}==> Step 6/8: Committing & Generating Changelog...
+Commit Type (feat|fix|chore):
 
 #!/bin/bash
 # RAIL Portal Plugin Build and Deploy Script
