@@ -1,6 +1,14 @@
 #!/bin/bash
 # RAIL Portal Plugin Build and Deploy Script
-# This script automates the complete build and deployment workflow
+# This script automates the complete build and deployment workflow:
+# - Pull latest
+# - Bump Maven version (patch suggestion)
+# - Build frontend + backend
+# - Upload artifact to GitLab Generic Package Registry
+# - Generate CHANGELOG.md via git-cliff
+# - Create ONE release commit (pom.xml + changelog, and any other staged changes)
+# - Tag + push
+# - Create GitLab Release with asset link (JSON-safe via jq)
 
 set -e  # Exit on any error
 
@@ -16,20 +24,20 @@ print_warning() { echo -e "${YELLOW}WARNING:${NC} $1"; }
 
 # --- Step 0: Dependency Check ---
 check_dependencies() {
-    local dependencies=("npm" "atlas-mvn" "git-cliff" "curl" "git" "awk" "cut" "tr")
-    for cmd in "${dependencies[@]}"; do
-        if ! command -v "$cmd" &> /dev/null; then
-            print_error "Dependency '$cmd' is not installed. Please install it to proceed."
-            exit 1
-        fi
-    done
+  local dependencies=("npm" "atlas-mvn" "git-cliff" "curl" "git" "awk" "cut" "tr" "jq")
+  for cmd in "${dependencies[@]}"; do
+    if ! command -v "$cmd" &> /dev/null; then
+      print_error "Dependency '$cmd' is not installed. Please install it to proceed."
+      exit 1
+    fi
+  done
 }
 
 # --- Configuration ---
 PROJECT_ROOT="/mnt/${USER}/git/rail-at-sas"
 FRONTEND_DIR="${PROJECT_ROOT}/frontend"
 BACKEND_DIR="${PROJECT_ROOT}/backend"
-PROJECT_ID="7429" 
+PROJECT_ID="7429"
 TOKEN="${GL_DEPLOY_TOKEN}"
 GITLAB_URL="https://gitlab.smartcloud.samsungds.net"
 
@@ -40,155 +48,102 @@ check_dependencies
 print_step "Step 1/9: Pulling latest changes from git..."
 cd "${PROJECT_ROOT}"
 git pull || {
-    print_error "Git pull failed!"
-    exit 1
+  print_error "Git pull failed!"
+  exit 1
 }
 
 # Step 2: Version Management
 print_step "Step 2/9: Version Validation..."
 
-# 1. Fetch version and strip any 'Executing...' noise or whitespace
+# Fetch version and strip any 'Executing...' noise or whitespace
 RAW_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]' | tail -n 1 | tr -d '[:space:]')
 
-# 2. Safety check: If RAW_VERSION is empty, fall back to a safe default
+# Safety check: If RAW_VERSION is empty, fall back to a safe default
 CURRENT_VERSION=${RAW_VERSION:-"1.0.0"}
 
-# 3. Increment the patch version (the robust way)
+# Increment the patch version (robust)
 BASE_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1-2)
 PATCH_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f3)
 SUGGESTED_VERSION="${BASE_VERSION}.$((PATCH_VERSION + 1))"
 
 echo -e "${YELLOW}Current POM version: ${CURRENT_VERSION}${NC}"
 read -p "Enter version for this release (Default suggestion: ${SUGGESTED_VERSION}): " NEW_VERSION
-
 VERSION=${NEW_VERSION:-$SUGGESTED_VERSION}
 
-# BLOCKER: Check GitLab Registry
+# BLOCKER: Check GitLab Registry for version uniqueness
 print_step "Verifying version uniqueness..."
 PACKAGE_EXISTS=$(curl -s --header "PRIVATE-TOKEN: ${TOKEN}" \
-    "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages?package_version=${VERSION}" | grep -c "version\":\"${VERSION}\"" || true)
+  "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages?package_version=${VERSION}" | grep -c "version\":\"${VERSION}\"" || true)
 
 if [ "$PACKAGE_EXISTS" -gt 0 ]; then
-    print_error "Version ${VERSION} already exists in GitLab Registry! Aborting build."
-    exit 1
+  print_error "Version ${VERSION} already exists in GitLab Registry! Aborting build."
+  exit 1
 fi
 
 # Apply version to POM
 cd "${BACKEND_DIR}"
 atlas-mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false -q
 
-# Step 3 & 4: Build
+# Step 3: Frontend Build
 print_step "Step 3/9: Building frontend..."
 cd "${FRONTEND_DIR}"
 if [ ! -d "node_modules" ]; then
-    print_warning "node_modules not found. Installing dependencies..."
-    npm install
+  print_warning "node_modules not found. Installing dependencies..."
+  npm install
 fi
-npm run build:plugin|| {
-    print_error "Frontend build failed!"
-    exit 1
+npm run build:plugin || {
+  print_error "Frontend build failed!"
+  exit 1
 }
 
 # Step 4: Backend Build
 print_step "Step 4/9: Building backend with atlas-mvn..."
 cd "${BACKEND_DIR}"
 atlas-mvn clean package -DskipTests || {
-    print_error "Backend build failed!"
-    exit 1
+  print_error "Backend build failed!"
+  exit 1
 }
 
-# Step 5: Process JAR & Upload
+# Step 5: Upload artifact to GitLab Package Registry
 print_step "Step 5/9: Uploading to GitLab Registry..."
 cd "${BACKEND_DIR}/target"
 FINAL_JAR="rail-portal-plugin-${VERSION}.jar"
 
 if [ ! -f "${FINAL_JAR}" ]; then
-    print_error "JAR file not found: ${FINAL_JAR}"
-    exit 1
+  print_error "JAR file not found: ${FINAL_JAR}"
+  exit 1
 fi
+
 PACKAGE_URL="${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages/generic/rail-portal/${VERSION}/${FINAL_JAR}"
 
 curl --fail --header "PRIVATE-TOKEN: ${TOKEN}" \
-    --upload-file "${FINAL_JAR}" \
-    "${PACKAGE_URL}"
+  --upload-file "${FINAL_JAR}" \
+  "${PACKAGE_URL}"
 
-echo "" 
+echo ""
 
-# --- Commit Message Helpers ---
-MAX_TITLE_LEN=72
-
-trim() { echo "$1" | awk '{$1=$1;print}'; }
-
-validate_title_only() {
-    local title="$1"
-    local len=${#title}
-
-    if [[ -z "$(trim "$title")" ]]; then
-        print_error "Title cannot be empty."
-        return 1
-    fi
-
-    if (( len > MAX_TITLE_LEN )); then
-        print_error "Title is too long (${len} chars). Max allowed is ${MAX_TITLE_LEN}."
-        return 1
-    fi
-
-    return 0
-}
-
-read_multiline_body() {
-  # Prompts go to the terminal (not captured)
-  echo -e "${YELLOW}Enter commit description/body (multi-line).${NC}" > /dev/tty
-  echo -e "${YELLOW}Finish by pressing Ctrl+D on a new line (leave empty + Ctrl+D for no body).${NC}\n" > /dev/tty
-
-  # Body is read from terminal, but printed to stdout so caller can capture it
-  cat < /dev/tty
-}
-
-# Step 6: Git Flow & Changelog
+# Step 6: Single release commit (version bump + changelog)
 print_step "Step 6/9: Committing Release Metadata & Generating Changelog..."
 cd "${PROJECT_ROOT}"
 
-echo -e "${YELLOW}Select Commit Type (feat|fix|chore|refactor|docs):${NC}"
-read TYPE
-echo -e "${YELLOW}Enter Scope (e.g., ui, backend, nav) or leave blank:${NC}"
-read SCOPE
+# Generate changelog for this release tag (based on conventional commits)
+git-cliff --tag "v${VERSION}" --output CHANGELOG.md
 
-# Validate only the title text (subject summary)
-while true; do
-    echo -e "${YELLOW}Commit Title(max ${MAX_TITLE_LEN} chars):${NC}"
-    read TITLE
-    if validate_title_only "${TITLE}"; then
-        break
-    fi
-    print_warning "Please enter a shorter title."
-done
-
-# Optional multi-line body
-COMMIT_BODY="$(read_multiline_body)"
-
-COMMIT_SUBJECT="${TYPE}(${SCOPE:-all}): ${TITLE}"
-
+# Stage release metadata changes:
+# - pom.xml (already modified by versions:set)
+# - CHANGELOG.md (just generated)
+# - any other changes present (optional; keeps things consistent if you also adjust a frontend file)
 if [[ -n $(git status -s) ]]; then
-    git add .
-    if [[ -n "$(trim "$COMMIT_BODY")" ]]; then
-        git commit -m "${COMMIT_SUBJECT}" -m "${COMMIT_BODY}"
-    else
-        git commit -m "${COMMIT_SUBJECT}"
-    fi
+  git add .
+  git commit -m "chore(release): prepare for v${VERSION}"
+else
+  # Rare, but allows tagging/releasing even if nothing changed
+  git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
 fi
-
-# Release Anchor
-git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
-
-# Generate Changelog
-npx git-cliff --tag "v${VERSION}" --output CHANGELOG.md
-git add CHANGELOG.md
-git commit --amend --no-edit
 
 # Step 7: Tagging
 print_step "Step 7/9: Finalizing Git Tag..."
-git tag -a "v${VERSION}" -m "${COMMIT_SUBJECT}"
+git tag -a "v${VERSION}" -m "Release v${VERSION}"
 
 # Step 8: Final Push
 print_step "Step 8/9: Pushing code and tags..."
@@ -196,28 +151,29 @@ git push origin main --tags -f
 
 # Step 9: Create GitLab Release Entry with Assets
 print_step "Step 9/9: Creating Official GitLab Release..."
-# Explicitly target the new tag for the description notes
-NOTES=$(npx git-cliff --latest --strip all)
+
+# Release notes: latest section generated by git-cliff (markdown)
+NOTES="$(git-cliff --latest --strip all)"
 
 payload="$(jq -n \
-    --arg name "Release ${VERSION}" \
-    --arg tag  "v${VERSION}" \
-    --arg desc "${NOTES}" \
-    --arg asset_name "${FINAL_JAR}" \
-    --arg asset_url  "${PACKAGE_URL}" \
-    '{
+  --arg name "Release ${VERSION}" \
+  --arg tag  "v${VERSION}" \
+  --arg desc "${NOTES}" \
+  --arg asset_name "${FINAL_JAR}" \
+  --arg asset_url  "${PACKAGE_URL}" \
+  '{
     name: $name,
     tag_name: $tag,
     description: $desc,
     assets: { links: [ { name: $asset_name, url: $asset_url, link_type: "package" } ] }
-    }'
+  }'
 )"
 
 curl --fail-with-body -sS \
-    --header "Content-Type: application/json" \
-    --header "PRIVATE-TOKEN: ${TOKEN}" \
-    --data "${payload}" \
-    --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
+  --header "Content-Type: application/json" \
+  --header "PRIVATE-TOKEN: ${TOKEN}" \
+  --data "${payload}" \
+  --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
 
 # Final Success Message
 echo -e "\n${GREEN}─────────────────────────────────────────────────────────────────${NC}"
