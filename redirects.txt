@@ -1,0 +1,64 @@
+With the changes I described, only these “Desk/Refined” legacy links get an OOTB fallback when the portal is not live — everything else stays exactly as your filter behaves today.
+
+1) Always redirect (regardless of live / config)
+
+These go to RAIL home:
+	•	/servicedesk/customer/portals → /plugins/servlet/customer-rail
+	•	/plugins/servlet/desk/site/global → /plugins/servlet/customer-rail
+	•	/plugins/servlet/desk (and /plugins/servlet/desk/) → /plugins/servlet/customer-rail
+
+(Query string preserved.)
+
+⸻
+
+2) Redirect to RAIL when portal is live (existing behavior)
+
+These already work today and remain the same:
+
+Portal base
+	•	/servicedesk/customer/portal/{portalId} → /plugins/servlet/customer-rail/{projectKey} if live
+	•	/plugins/servlet/desk/portal/{portalId} → /plugins/servlet/customer-rail/{projectKey} if live
+	•	/plugins/servlet/desk/portal/{portalId}/rail → /plugins/servlet/customer-rail/{projectKey} if live
+
+Request type create
+	•	/servicedesk/customer/portal/{portalId}/create/{requestTypeId} → /plugins/servlet/customer-rail/{projectKey}/requesttype/{requestTypeId} if live
+	•	/plugins/servlet/desk/portal/{portalId}/create/{requestTypeId} → /plugins/servlet/customer-rail/{projectKey}/requesttype/{requestTypeId} if live
+
+(Query string preserved.)
+
+⸻
+
+3) NEW: Redirect Desk/Refined links to OOTB when portal is NOT live (the rescue behavior)
+
+These are the key additions so saved Refined links don’t 404 after Refined is disabled.
+
+Desk portal base → OOTB portal base (if NOT live / no live config)
+	•	/plugins/servlet/desk/portal/{portalId} → /servicedesk/customer/portal/{portalId}
+	•	/plugins/servlet/desk/portal/{portalId}/ → /servicedesk/customer/portal/{portalId}
+
+Desk request type create → OOTB request type create (if NOT live / no live config)
+	•	/plugins/servlet/desk/portal/{portalId}/create/{requestTypeId}
+→ /servicedesk/customer/portal/{portalId}/create/{requestTypeId}
+
+(Query string preserved.)
+
+Important: This fallback is only applied when the incoming URL is a Desk/Refined URL (starts with /plugins/servlet/desk/portal/).
+If the user is already on the OOTB JSM URL, and the portal is not live, you still just pass through.
+
+⸻
+
+4) Links that will NOT redirect (same as today)
+
+These continue to pass through (and may 404 once Refined is removed if they rely on Refined):
+	•	/plugins/servlet/desk/portal/{portalId}/user/requests
+	•	/plugins/servlet/desk/portal/{portalId}/{ISSUEKEY} (issue view)
+	•	/plugins/servlet/desk/portal/{portalId}/anything-else
+	•	Any Desk paths that are “sub-pages” you currently classify as isPortalSubPath=true
+
+Reason: you intentionally don’t have RAIL equivalents for those pages, and OOTB JSM doesn’t have perfect 1:1 mappings for all Refined desk subroutes.
+
+⸻
+
+If you want, I can extend the rescue behavior to one more very common saved Refined link:
+/plugins/servlet/desk/portal/{portalId}/user/requests → /servicedesk/customer/user/requests (OOTB “My requests”)
+…but I didn’t include it above because you didn’t mention it yet, and it changes behavior beyond the two “home” cases you explicitly asked for.
