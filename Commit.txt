@@ -1,0 +1,13 @@
+Force hard navigation for /servicedesk/customer/portals to ensure RAIL redirect
+
+JSM breadcrumb navigation to /servicedesk/customer/portals uses SPA routing,
+which prevents the RailCustomerPortalRedirectFilter from executing.
+
+This update extends rail-portal-intercept.js to:
+- Intercept navigation to /servicedesk/customer/portals
+- Force a full page reload
+- Allow server-side redirect to /plugins/servlet/customer-rail
+
+Also improves anchor detection using closest('a[href]') and normalizes path comparisons.
+
+No backend changes.
