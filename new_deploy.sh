@@ -1,4 +1,69 @@
+# --- Commit Message Helpers ---
+MAX_TITLE_LEN=72
 
+trim() { echo "$1" | awk '{$1=$1;print}'; }
+
+validate_title_only() {
+  local title="$1"
+  local len=${#title}
+
+  if [[ -z "$(trim "$title")" ]]; then
+    print_error "Title cannot be empty."
+    return 1
+  fi
+
+  if (( len > MAX_TITLE_LEN )); then
+    print_error "Title is too long (${len} chars). Max allowed is ${MAX_TITLE_LEN}."
+    return 1
+  fi
+
+  return 0
+}
+
+read_multiline_body() {
+  echo -e "${YELLOW}Enter commit description/body (multi-line).${NC}"
+  echo -e "${YELLOW}Finish by pressing Ctrl+D on a new line.${NC}\n"
+  cat
+}
+
+# Step 6: Git Flow & Changelog
+print_step "Step 6/9: Committing Release Metadata & Generating Changelog..."
+cd "${PROJECT_ROOT}"
+
+echo -e "${YELLOW}Type (feat|fix|chore|refactor):${NC}"
+read TYPE
+echo -e "${YELLOW}Scope (ui|nav|backend):${NC}"
+read SCOPE
+
+# Validate only the title text (subject summary)
+while true; do
+  echo -e "${YELLOW}Title summary (max ${MAX_TITLE_LEN} chars):${NC}"
+  read TITLE
+  if validate_title_only "${TITLE}"; then
+    break
+  fi
+  print_warning "Please enter a shorter title."
+done
+
+# Optional multi-line body
+COMMIT_BODY="$(read_multiline_body)"
+
+COMMIT_SUBJECT="${TYPE}(${SCOPE:-all}): ${TITLE}"
+
+if [[ -n $(git status -s) ]]; then
+  git add .
+  if [[ -n "$(trim "$COMMIT_BODY")" ]]; then
+    git commit -m "${COMMIT_SUBJECT}" -m "${COMMIT_BODY}"
+  else
+    git commit -m "${COMMIT_SUBJECT}"
+  fi
+fi
+
+# Release Anchor
+git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
+git-cliff --tag "v${VERSION}" --output CHANGELOG.md
+git add CHANGELOG.md
+git commit --amend --no-edit
 NOTES="$(git-cliff --latest --strip all)"
 
 payload="$(jq -n \
