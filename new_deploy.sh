@@ -137,9 +137,22 @@ validate_title_only() {
 }
 
 read_multiline_body() {
-    echo -e "${YELLOW}Enter commit description (multi-line).${NC}"
-    echo -e "${YELLOW}Finish by pressing Ctrl+D on a new line.${NC}\n"
-    cat
+  echo -e "${YELLOW}Enter commit description/body (multi-line).${NC}"
+  echo -e "${YELLOW}Type END on its own line to finish. Leave empty then END for no body.${NC}"
+  echo ""
+
+  local body=""
+  local line=""
+  while IFS= read -r line; do
+    if [[ "$line" == "END" ]]; then
+      break
+    fi
+    body+="${line}"$'\n'
+  done
+
+  # Trim trailing newline
+  body="${body%$'\n'}"
+  printf "%s" "$body"
 }
 
 # Step 6: Git Flow & Changelog
@@ -185,7 +198,7 @@ git commit --amend --no-edit
 
 # Step 7: Tagging
 print_step "Step 7/9: Finalizing Git Tag..."
-git tag -a "v${VERSION}" -m "${FULL_MSG}"
+git tag -a "v${VERSION}" -m "${COMMIT_SUBJECT}"
 
 # Step 8: Final Push
 print_step "Step 8/9: Pushing code and tags..."
