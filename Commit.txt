@@ -1,13 +1,8 @@
-Force hard navigation for /servicedesk/customer/portals to ensure RAIL redirect
+fix(portal-jql-table): use issue-level serviceDeskId for customer portal links
 
-JSM breadcrumb navigation to /servicedesk/customer/portals uses SPA routing,
-which prevents the RailCustomerPortalRedirectFilter from executing.
+Previously, JQL table links used the portal-level serviceDeskId,
+causing non-JSM issues to incorrectly resolve to
+/servicedesk/customer/portal/{id}/{issueKey} and return 404.
 
-This update extends rail-portal-intercept.js to:
-- Intercept navigation to /servicedesk/customer/portals
-- Force a full page reload
-- Allow server-side redirect to /plugins/servlet/customer-rail
-
-Also improves anchor detection using closest('a[href]') and normalizes path comparisons.
-
-No backend changes.
+Now links are determined per issue using issue.serviceDeskId,
+falling back to /browse/{issueKey} for non-JSM issues.
