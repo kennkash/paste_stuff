@@ -1,101 +1,14 @@
-# --- Commit Message Helpers ---
-MAX_TITLE_LEN=72
-
-trim() { echo "$1" | awk '{$1=$1;print}'; }
-
-validate_title_only() {
-  local title="$1"
-  local len=${#title}
-
-  if [[ -z "$(trim "$title")" ]]; then
-    print_error "Title cannot be empty."
-    return 1
-  fi
-
-  if (( len > MAX_TITLE_LEN )); then
-    print_error "Title is too long (${len} chars). Max allowed is ${MAX_TITLE_LEN}."
-    return 1
-  fi
-
-  return 0
-}
-
-read_multiline_body() {
-  echo -e "${YELLOW}Enter commit description/body (multi-line).${NC}"
-  echo -e "${YELLOW}Finish by pressing Ctrl+D on a new line.${NC}\n"
-  cat
-}
-
-# Step 6: Git Flow & Changelog
-print_step "Step 6/9: Committing Release Metadata & Generating Changelog..."
-cd "${PROJECT_ROOT}"
-
-echo -e "${YELLOW}Type (feat|fix|chore|refactor):${NC}"
-read TYPE
-echo -e "${YELLOW}Scope (ui|nav|backend):${NC}"
-read SCOPE
-
-# Validate only the title text (subject summary)
-while true; do
-  echo -e "${YELLOW}Title summary (max ${MAX_TITLE_LEN} chars):${NC}"
-  read TITLE
-  if validate_title_only "${TITLE}"; then
-    break
-  fi
-  print_warning "Please enter a shorter title."
-done
-
-# Optional multi-line body
-COMMIT_BODY="$(read_multiline_body)"
-
-COMMIT_SUBJECT="${TYPE}(${SCOPE:-all}): ${TITLE}"
-
-if [[ -n $(git status -s) ]]; then
-  git add .
-  if [[ -n "$(trim "$COMMIT_BODY")" ]]; then
-    git commit -m "${COMMIT_SUBJECT}" -m "${COMMIT_BODY}"
-  else
-    git commit -m "${COMMIT_SUBJECT}"
-  fi
-fi
-
-# Release Anchor
-git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
-git-cliff --tag "v${VERSION}" --output CHANGELOG.md
-git add CHANGELOG.md
-git commit --amend --no-edit
-NOTES="$(git-cliff --latest --strip all)"
-
-payload="$(jq -n \
-  --arg name "Release ${VERSION}" \
-  --arg tag  "v${VERSION}" \
-  --arg desc "${NOTES}" \
-  --arg asset_name "${FINAL_JAR}" \
-  --arg asset_url  "${PACKAGE_URL}" \
-  '{
-    name: $name,
-    tag_name: $tag,
-    description: $desc,
-    assets: { links: [ { name: $asset_name, url: $asset_url, link_type: "package" } ] }
-  }'
-)"
-
-curl --fail-with-body -sS \
-  --header "Content-Type: application/json" \
-  --header "PRIVATE-TOKEN: ${TOKEN}" \
-  --data "${payload}" \
-  --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
-
-
 #!/bin/bash
 # RAIL Portal Plugin Build and Deploy Script
-set -e 
+# This script automates the complete build and deployment workflow
 
-# --- Colors & Functions ---
+set -e  # Exit on any error
+
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' 
+NC='\033[0m' # No Color
 
 print_step() { echo -e "${GREEN}==>${NC} $1"; }
 print_error() { echo -e "${RED}ERROR:${NC} $1"; }
@@ -116,29 +29,38 @@ check_dependencies() {
 PROJECT_ROOT="/mnt/${USER}/git/rail-at-sas"
 FRONTEND_DIR="${PROJECT_ROOT}/frontend"
 BACKEND_DIR="${PROJECT_ROOT}/backend"
-PROJECT_ID="123456" 
+PROJECT_ID="7429" 
 TOKEN="${GL_DEPLOY_TOKEN}"
-GITLAB_URL="https://gitlab.com"
+GITLAB_URL="https://gitlab.smartcloud.samsungds.net"
 
 # Start Execution
 check_dependencies
 
 # Step 1: Git Pull
-print_step "Step 1/9: Pulling latest changes..."
+print_step "Step 1/9: Pulling latest changes from git..."
 cd "${PROJECT_ROOT}"
-git pull
+git pull || {
+    print_error "Git pull failed!"
+    exit 1
+}
 
 # Step 2: Version Management
 print_step "Step 2/9: Version Validation..."
+
+# 1. Fetch version and strip any 'Executing...' noise or whitespace
 RAW_VERSION=$(cd "${BACKEND_DIR}" && atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]' | tail -n 1 | tr -d '[:space:]')
+
+# 2. Safety check: If RAW_VERSION is empty, fall back to a safe default
 CURRENT_VERSION=${RAW_VERSION:-"1.0.0"}
 
+# 3. Increment the patch version (the robust way)
 BASE_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f1-2)
 PATCH_VERSION=$(echo "$CURRENT_VERSION" | cut -d. -f3)
 SUGGESTED_VERSION="${BASE_VERSION}.$((PATCH_VERSION + 1))"
 
 echo -e "${YELLOW}Current POM version: ${CURRENT_VERSION}${NC}"
 read -p "Enter version for this release (Default suggestion: ${SUGGESTED_VERSION}): " NEW_VERSION
+
 VERSION=${NEW_VERSION:-$SUGGESTED_VERSION}
 
 # BLOCKER: Check GitLab Registry
@@ -158,46 +80,106 @@ atlas-mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false -q
 # Step 3 & 4: Build
 print_step "Step 3/9: Building frontend..."
 cd "${FRONTEND_DIR}"
-[ ! -d "node_modules" ] && npm install
-npm run build:plugin
+if [ ! -d "node_modules" ]; then
+    print_warning "node_modules not found. Installing dependencies..."
+    npm install
+fi
+npm run build:plugin|| {
+    print_error "Frontend build failed!"
+    exit 1
+}
 
-print_step "Step 4/9: Building backend..."
+# Step 4: Backend Build
+print_step "Step 4/9: Building backend with atlas-mvn..."
 cd "${BACKEND_DIR}"
-atlas-mvn clean package -DskipTests
+atlas-mvn clean package -DskipTests || {
+    print_error "Backend build failed!"
+    exit 1
+}
 
 # Step 5: Process JAR & Upload
 print_step "Step 5/9: Uploading to GitLab Registry..."
 cd "${BACKEND_DIR}/target"
 FINAL_JAR="rail-portal-plugin-${VERSION}.jar"
+
+if [ ! -f "${FINAL_JAR}" ]; then
+    print_error "JAR file not found: ${FINAL_JAR}"
+    exit 1
+fi
 PACKAGE_URL="${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/packages/generic/rail-portal/${VERSION}/${FINAL_JAR}"
 
 curl --fail --header "PRIVATE-TOKEN: ${TOKEN}" \
-     --upload-file "${FINAL_JAR}" \
-     "${PACKAGE_URL}"
+    --upload-file "${FINAL_JAR}" \
+    "${PACKAGE_URL}"
 
 echo "" 
+
+# --- Commit Message Helpers ---
+MAX_TITLE_LEN=72
+
+trim() { echo "$1" | awk '{$1=$1;print}'; }
+
+validate_title_only() {
+    local title="$1"
+    local len=${#title}
+
+    if [[ -z "$(trim "$title")" ]]; then
+        print_error "Title cannot be empty."
+        return 1
+    fi
+
+    if (( len > MAX_TITLE_LEN )); then
+        print_error "Title is too long (${len} chars). Max allowed is ${MAX_TITLE_LEN}."
+        return 1
+    fi
+
+    return 0
+}
+
+read_multiline_body() {
+    echo -e "${YELLOW}Enter commit description (multi-line).${NC}"
+    echo -e "${YELLOW}Finish by pressing Ctrl+D on a new line.${NC}\n"
+    cat
+}
 
 # Step 6: Git Flow & Changelog
 print_step "Step 6/9: Committing Release Metadata & Generating Changelog..."
 cd "${PROJECT_ROOT}"
 
-echo -e "${YELLOW}Type (feat|fix|chore|refactor):${NC}"
+echo -e "${YELLOW}Select Commit Type (feat|fix|chore|refactor|docs):${NC}"
 read TYPE
-echo -e "${YELLOW}Scope (ui|nav|backend):${NC}"
+echo -e "${YELLOW}Enter Scope (e.g., ui, backend, nav) or leave blank:${NC}"
 read SCOPE
-echo -e "${YELLOW}Description:${NC}"
-read DESC
 
-FULL_MSG="${TYPE}(${SCOPE:-all}): ${DESC}"
+# Validate only the title text (subject summary)
+while true; do
+    echo -e "${YELLOW}Commit Title(max ${MAX_TITLE_LEN} chars):${NC}"
+    read TITLE
+    if validate_title_only "${TITLE}"; then
+        break
+    fi
+    print_warning "Please enter a shorter title."
+done
+
+# Optional multi-line body
+COMMIT_BODY="$(read_multiline_body)"
+
+COMMIT_SUBJECT="${TYPE}(${SCOPE:-all}): ${TITLE}"
 
 if [[ -n $(git status -s) ]]; then
     git add .
-    git commit -m "${FULL_MSG}"
+    if [[ -n "$(trim "$COMMIT_BODY")" ]]; then
+        git commit -m "${COMMIT_SUBJECT}" -m "${COMMIT_BODY}"
+    else
+        git commit -m "${COMMIT_SUBJECT}"
+    fi
 fi
 
 # Release Anchor
 git commit --allow-empty -m "chore(release): prepare for v${VERSION}"
-git-cliff --tag "v${VERSION}" --output CHANGELOG.md
+
+# Generate Changelog
+npx git-cliff --tag "v${VERSION}" --output CHANGELOG.md
 git add CHANGELOG.md
 git commit --amend --no-edit
 
@@ -211,23 +193,33 @@ git push origin main --tags -f
 
 # Step 9: Create GitLab Release Entry with Assets
 print_step "Step 9/9: Creating Official GitLab Release..."
-# FIX: Explicitly target the new tag for the description notes
-NOTES=$(git-cliff --latest --strip all)
+# Explicitly target the new tag for the description notes
+NOTES=$(npx git-cliff --latest --strip all)
 
-curl --header "Content-Type: application/json" \
-     --header "PRIVATE-TOKEN: ${TOKEN}" \
-     --data "{
-       \"name\": \"Release ${VERSION}\",
-       \"tag_name\": \"v${VERSION}\",
-       \"description\": \"${NOTES}\",
-       \"assets\": {
-         \"links\": [{
-           \"name\": \"${FINAL_JAR}\",
-           \"url\": \"${PACKAGE_URL}\",
-           \"link_type\": \"package\"
-         }]
-       }
-     }" \
-     --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
+payload="$(jq -n \
+    --arg name "Release ${VERSION}" \
+    --arg tag  "v${VERSION}" \
+    --arg desc "${NOTES}" \
+    --arg asset_name "${FINAL_JAR}" \
+    --arg asset_url  "${PACKAGE_URL}" \
+    '{
+    name: $name,
+    tag_name: $tag,
+    description: $desc,
+    assets: { links: [ { name: $asset_name, url: $asset_url, link_type: "package" } ] }
+    }'
+)"
 
-echo -e "\n${GREEN}✓ Release ${VERSION} complete! Artifact linked in GitLab Releases.${NC}\n"
+curl --fail-with-body -sS \
+    --header "Content-Type: application/json" \
+    --header "PRIVATE-TOKEN: ${TOKEN}" \
+    --data "${payload}" \
+    --request POST "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/releases"
+
+# Final Success Message
+echo -e "\n${GREEN}─────────────────────────────────────────────────────────────────${NC}"
+echo -e "${GREEN}✓ Release ${VERSION} is complete!${NC}"
+echo -e "${YELLOW}Artifact URL:${NC} ${GITLAB_URL}/digitalsolutions/knowledge/rail-at-sas/-/packages"
+echo -e "${YELLOW}Release Page:${NC} ${GITLAB_URL}/digitalsolutions/knowledge/rail-at-sas/-/releases"
+echo -e "${YELLOW}Tag:${NC} v${VERSION}"
+echo -e "${GREEN}─────────────────────────────────────────────────────────────────${NC}\n"
