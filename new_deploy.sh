@@ -137,22 +137,12 @@ validate_title_only() {
 }
 
 read_multiline_body() {
-  echo -e "${YELLOW}Enter commit description/body (multi-line).${NC}"
-  echo -e "${YELLOW}Type END on its own line to finish. Leave empty then END for no body.${NC}"
-  echo ""
+  # Prompts go to the terminal (not captured)
+  echo -e "${YELLOW}Enter commit description/body (multi-line).${NC}" > /dev/tty
+  echo -e "${YELLOW}Finish by pressing Ctrl+D on a new line (leave empty + Ctrl+D for no body).${NC}\n" > /dev/tty
 
-  local body=""
-  local line=""
-  while IFS= read -r line; do
-    if [[ "$line" == "END" ]]; then
-      break
-    fi
-    body+="${line}"$'\n'
-  done
-
-  # Trim trailing newline
-  body="${body%$'\n'}"
-  printf "%s" "$body"
+  # Body is read from terminal, but printed to stdout so caller can capture it
+  cat < /dev/tty
 }
 
 # Step 6: Git Flow & Changelog
