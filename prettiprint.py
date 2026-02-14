@@ -1,18 +1,17 @@
 def _print_level(self, emoji_char: str, style_key: str, message: str) -> None:
-        if self._config.verbosity == 0:
-            return
+    if self._config.verbosity == 0:
+        return
 
-        # Two-column grid so Rich handles emoji width properly (including double-width emojis)
-        grid = Table.grid(padding=(0, 0))
-        grid.add_column(width=2, no_wrap=True)  # fixed prefix column
-        grid.add_column()
+    grid = Table.grid(padding=(0, 1))  # <-- this is your "gap" now
+    grid.add_column(no_wrap=True)      # <-- let emoji column size itself (no fixed width)
+    grid.add_column(ratio=1)           # <-- message takes remaining width
 
-        prefix = emoji_char if self._config.emoji else ""
-        styled_msg = f"[{self._styles[style_key]}]{message}[/{self._styles[style_key]}]"
-        grid.add_row(prefix, styled_msg)
+    prefix = emoji_char if self._config.emoji else ""
+    msg = Text(message, style=self._styles[style_key])
 
-        self._console.print(grid)
-        self._after_print()
+    grid.add_row(prefix, msg)
+    self._console.print(grid)
+    self._after_print()
 
     def success(self, message: str) -> None:
         self._print_level("✅", "success", message)
