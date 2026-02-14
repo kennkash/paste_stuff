@@ -1,3 +1,135 @@
+# --- add to ConsoleConfig (new option) ---
+@dataclass
+class ConsoleConfig:
+    theme: str = "dark"
+    emoji: bool = True
+    timestamps: bool = True
+    verbosity: int = 1
+    enable_tracebacks: bool = True
+    message_spacing: Union[int, str] = 0  # NEW: spacer after messages (0 disables)
+
+
+class ConsoleUtils:
+    def __init__(
+        self,
+        theme: str = "dark",
+        *,
+        emoji: bool = True,
+        timestamps: bool = True,
+        verbosity: int = 1,
+        enable_tracebacks: bool = True,
+        custom_styles: Optional[dict] = None,
+        message_spacing: Union[int, str] = 0,  # NEW
+        emoji_gap: str = " ",                  # NEW: spacing between emoji and text
+    ) -> None:
+        if enable_tracebacks:
+            install_rich_traceback(show_locals=False)
+
+        theme_name = theme.lower()
+        if theme_name not in _PRESET_THEMES:
+            raise ValueError(
+                f"Unknown theme '{theme}'. Choose from: {', '.join(_PRESET_THEMES)}"
+            )
+        merged = {**_PRESET_THEMES[theme_name], **(custom_styles or {})}
+
+        self._console = Console(theme=Theme(merged), emoji=emoji, soft_wrap=False)
+        self._styles = merged
+        self._config = ConsoleConfig(
+            theme=theme_name,
+            emoji=emoji,
+            timestamps=timestamps,
+            verbosity=verbosity,
+            enable_tracebacks=enable_tracebacks,
+            message_spacing=message_spacing,  # NEW
+        )
+        self._emoji_gap = emoji_gap  # NEW
+
+    # --- NEW: small internal helper to add consistent spacing after outputs ---
+    def _after_print(self) -> None:
+        if self._config.verbosity == 0:
+            return
+        if self._config.message_spacing:
+            self.spacer(self._config.message_spacing)
+
+    # --- NEW: helper to optionally prefix emoji with spacing ---
+    def _prefix_emoji(self, emoji_char: str) -> str:
+        # If config says no emoji, return empty prefix
+        if not self._config.emoji:
+            return ""
+        # ensure a gap between emoji and message
+        return f"{emoji_char}{self._emoji_gap}"
+
+    # ---------- Messages ----------
+    def success(self, message: str) -> None:
+        if self._config.verbosity == 0:
+            return
+        prefix = self._prefix_emoji("✅")
+        self._console.print(
+            f"{prefix}[{self._styles['success']}]{message}[/{self._styles['success']}]"
+        )
+        self._after_print()  # NEW
+
+    def info(self, message: str) -> None:
+        if self._config.verbosity == 0:
+            return
+        prefix = self._prefix_emoji("ℹ️")
+        self._console.print(
+            f"{prefix}[{self._styles['info']}]{message}[/{self._styles['info']}]"
+        )
+        self._after_print()  # NEW
+
+    def warning(self, message: str) -> None:
+        if self._config.verbosity == 0:
+            return
+        prefix = self._prefix_emoji("⚠️")
+        self._console.print(
+            f"{prefix}[{self._styles['warning']}]{message}[/{self._styles['warning']}]"
+        )
+        self._after_print()  # NEW
+
+    def error(self, message: str) -> None:
+        if self._config.verbosity == 0:
+            return
+        prefix = self._prefix_emoji("❌")
+        self._console.print(
+            f"{prefix}[{self._styles['error']}]{message}[/{self._styles['error']}]"
+        )
+        self._after_print()  # NEW
+
+    def event(self, message: str, level: str = "INFO") -> None:
+        if self._config.verbosity == 0:
+            return
+        lvl = level.upper()
+
+        # hide all events at verbosity 1
+        if self._config.verbosity < 2:
+            return
+
+        # hide all DEBUG events at verbosity 2
+        if self._config.verbosity < 3 and lvl == "DEBUG":
+            return
+
+        ts = (
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            if self._config.timestamps
+            else ""
+        )
+        color = self._styles.get(f"event.{lvl}", self._styles["info"])
+        prefix = f"[{ts}] {lvl:<7} " if ts else f"{lvl:<7} "
+        self._console.print(f"[{color}]{prefix}[/]{message}")
+        self._after_print()  # NEW
+
+    # --- If you want the same “post spacing” for structural outputs too, add this ---
+    def header(self, msg: str, *, style: Optional[str] = None) -> None:
+        if self._config.verbosity == 0:
+            return
+        style = style or "bold cyan"
+        self.spacer()
+        self._console.rule(f"[{style}]{msg}[/]")
+        self.spacer()
+        self._after_print()  # optional (NEW)
+
+
 from __future__ import annotations
 
 from dataclasses import dataclass
