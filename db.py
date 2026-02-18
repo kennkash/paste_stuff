@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import List, Dict, Any, Optional
 import pandas as pd
-from io import BytesIO
 
 from bigdataloader2 import getData
-from s2cloudapi import s3api as s3
 
 from aiocache import cached
 from aiocache.serializers import PickleSerializer
+
+from databases.psql import engine, schema
 
 router = APIRouter()
 
@@ -16,48 +16,74 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 CACHE_TTL_SECONDS = 86400  # 24 hours
-S3_BUCKET = "spotfire-admin"
-S3_KEY = "analyst-functions-users.csv"
+
+LICENSE_COLS = [
+    "USER_NAME",
+    "USER_EMAIL",
+    "LAST_ACTIVITY",
+    "ANALYST_FUNCTIONS",
+    "NON_ANALYST_FUNCTIONS",
+    "ANALYST_PCT",
+    "ANALYST_USER_FLAG",
+    "ANALYST_THRESHOLD",
+    "ANALYST_ACTIONS_PER_DAY",
+    "ANALYST_ACTIONS_PER_ACTIVE_DAYS",
+    "ACTIVE_DAYS",
+]
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def read_csv_from_bucket(bucket: str, key: str) -> pd.DataFrame:
-    """
-    Read a CSV object from S3 and return a pandas DataFrame.
-    """
-    boto_object = s3.get_object(bucket=bucket, key=key)
-    csv_bytes = boto_object["Body"].read()
-    df = pd.read_csv(BytesIO(csv_bytes))
-    return df
-
-
 def get_license_df() -> pd.DataFrame:
     """
-    Pull the license reduction dataset from S3.
+    Pull the analyst functions users dataset from PostgreSQL
+    (replaces the old S3 CSV load).
     """
-    return read_csv_from_bucket(bucket=S3_BUCKET, key=S3_KEY)
+    cols_sql = ", ".join([f'"{c}"' for c in LICENSE_COLS])
+    sql = f'SELECT {cols_sql} FROM "{schema}".analyst_functions_users'
+    df = pd.read_sql_query(sql, con=engine)
+    df.columns = [c.strip() for c in df.columns]
+    return df
 
 
 def _get_primary_employee_data() -> pd.DataFrame:
     """
     Primary employee lookup. We include extra identifiers to support
     additional matching passes: bname, nt_id, gad_id.
+    Also includes org metadata (cost center / dept / title).
     """
     params = {"data_type": "pageradm_employee_ghr", "MLR": "L"}
-    custom_columns = ["full_name", "smtp", "status_name", "bname", "nt_id", "gad_id"]
+    custom_columns = [
+        "full_name",
+        "smtp",
+        "status_name",
+        "bname",
+        "nt_id",
+        "gad_id",
+        "cost_center_name",
+        "dept_name",
+        "title",
+    ]
     return getData(params=params, custom_columns=custom_columns)
 
 
 def _get_fallback_employee_data() -> pd.DataFrame:
     """
-    Secondary/fallback employee lookup (full_name, smtp, status_name).
+    Secondary/fallback employee lookup (full_name, smtp, status_name, org fields).
     Used only when the primary merge fails to resolve FULL_NAME.
     """
     params = {"data_type": "dss_employee_ghr", "MLR": "L"}
-    custom_columns = ["full_name", "smtp", "status_name"]
+    custom_columns = [
+        "full_name",
+        "smtp",
+        "status_name",
+        "cost_center_name",
+        "dept_name",
+        "title",
+    ]
     return getData(params=params, custom_columns=custom_columns)
 
 
@@ -98,44 +124,47 @@ def _fill_missing_from_key(
     left_key_series: pd.Series,
 ) -> pd.DataFrame:
     """
-    Fill FULL_NAME + STATUS_NAME for rows where merged[FULL_NAME] is missing,
-    using a lookup table keyed by `lookup_key`, matching `left_key_series`.
+    Fill FULL_NAME + STATUS_NAME + org fields (cost_center_name, dept_name, title)
+    for rows where merged[FULL_NAME] is missing, using a lookup table keyed by
+    `lookup_key`, matching `left_key_series`.
 
-    - lookup must contain: lookup_key, full_name, status_name
+    - lookup must contain: lookup_key, full_name, status_name, cost_center_name, dept_name, title
     - left_key_series is the values to look up (same index as merged[missing_mask])
     """
     if not missing_mask.any():
         return merged
 
-    if lookup_key not in lookup.columns:
+    needed = {lookup_key, "full_name", "status_name", "cost_center_name", "dept_name", "title"}
+    if not needed.issubset(set(lookup.columns)):
         return merged
 
-    if "full_name" not in lookup.columns or "status_name" not in lookup.columns:
-        return merged
-
-    # Build lookup maps (dedupe keys to avoid ambiguous merges)
-    lk = lookup[[lookup_key, "full_name", "status_name"]].copy()
+    lk = lookup[[lookup_key, "full_name", "status_name", "cost_center_name", "dept_name", "title"]].copy()
     lk[lookup_key] = lk[lookup_key].astype(str).str.strip().str.lower()
-    lk = lk.dropna(subset=[lookup_key]).drop_duplicates(
-        subset=[lookup_key], keep="first"
-    )
-
-    name_map = lk.set_index(lookup_key)["full_name"].to_dict()
-    status_map = lk.set_index(lookup_key)["status_name"].to_dict()
+    lk = lk.dropna(subset=[lookup_key]).drop_duplicates(subset=[lookup_key], keep="first")
 
     left_keys_norm = left_key_series.astype(str).str.strip().str.lower()
 
-    # Fill FULL_NAME where missing
-    fill_name = left_keys_norm.map(name_map)
-    merged.loc[missing_mask, "FULL_NAME"] = merged.loc[
-        missing_mask, "FULL_NAME"
-    ].fillna(fill_name)
+    name_map = lk.set_index(lookup_key)["full_name"].to_dict()
+    status_map = lk.set_index(lookup_key)["status_name"].to_dict()
+    cc_map = lk.set_index(lookup_key)["cost_center_name"].to_dict()
+    dept_map = lk.set_index(lookup_key)["dept_name"].to_dict()
+    title_map = lk.set_index(lookup_key)["title"].to_dict()
 
-    # Fill STATUS_NAME where missing
-    fill_status = left_keys_norm.map(status_map)
-    merged.loc[missing_mask, "STATUS_NAME"] = merged.loc[
-        missing_mask, "STATUS_NAME"
-    ].fillna(fill_status)
+    merged.loc[missing_mask, "FULL_NAME"] = merged.loc[missing_mask, "FULL_NAME"].fillna(
+        left_keys_norm.map(name_map)
+    )
+    merged.loc[missing_mask, "STATUS_NAME"] = merged.loc[missing_mask, "STATUS_NAME"].fillna(
+        left_keys_norm.map(status_map)
+    )
+    merged.loc[missing_mask, "cost_center_name"] = merged.loc[missing_mask, "cost_center_name"].fillna(
+        left_keys_norm.map(cc_map)
+    )
+    merged.loc[missing_mask, "dept_name"] = merged.loc[missing_mask, "dept_name"].fillna(
+        left_keys_norm.map(dept_map)
+    )
+    merged.loc[missing_mask, "title"] = merged.loc[missing_mask, "title"].fillna(
+        left_keys_norm.map(title_map)
+    )
 
     return merged
 
@@ -150,20 +179,19 @@ async def get_cached_final_df() -> pd.DataFrame:
     """
     Build the fully-enriched dataset once (per TTL) and cache it:
 
-    1) Load license CSV from S3
+    1) Load base rows from PostgreSQL (analyst_functions_users)
     2) Compute recommendedAction
-    3) Primary merge on USER_EMAIL -> smtp to get FULL_NAME + STATUS_NAME
-    4) Fallback merge for remaining missing FULL_NAME
-    5) Partner email repair (partner -> samsung) for still-missing
+    3) Primary merge on USER_EMAIL -> smtp to get FULL_NAME + STATUS_NAME + org fields
+    4) Fallback merge for remaining missing FULL_NAME (also fills org fields)
+    5) Partner email repair (partner -> samsung) for still-missing (also fills org fields)
     6) Additional passes for still-missing:
         a) bname  -> USER_NAME
-        b) nt_id   -> USER_NAME
+        b) nt_id  -> USER_NAME
         c) gad_id -> localpart(USER_EMAIL)
     """
-    # 1) Load license activity CSV
+    # 1) Load base data from Postgres
     df = get_license_df()
     df.columns = [c.strip() for c in df.columns]
-    print(df.columns)
     df = df.where(df.notna(), None)
 
     # Normalize email fields early (helps joins)
@@ -172,7 +200,7 @@ async def get_cached_final_df() -> pd.DataFrame:
     if "USER_NAME" in df.columns:
         df["USER_NAME"] = df["USER_NAME"].astype(str).str.strip()
 
-    # Numeric conversion (csv sometimes produces strings)
+    # Numeric conversion (db can still give strings depending on driver/types)
     if "ANALYST_ACTIONS_PER_DAY" in df.columns:
         df["ANALYST_ACTIONS_PER_DAY"] = pd.to_numeric(
             df["ANALYST_ACTIONS_PER_DAY"], errors="coerce"
@@ -195,6 +223,11 @@ async def get_cached_final_df() -> pd.DataFrame:
     # Email local-part (for final matching against gad_id)
     df["USER_EMAIL_LOCAL"] = df["USER_EMAIL"].apply(_email_localpart)
 
+    # Ensure org fields exist so downstream fillna logic doesn't KeyError
+    for col in ["cost_center_name", "dept_name", "title"]:
+        if col not in df.columns:
+            df[col] = None
+
     # 2) Primary employee lookup
     user_data = _get_primary_employee_data().copy()
 
@@ -202,6 +235,11 @@ async def get_cached_final_df() -> pd.DataFrame:
     for col in ["smtp", "bname", "nt_id", "gad_id"]:
         if col in user_data.columns:
             user_data[col] = user_data[col].astype(str).str.strip().str.lower()
+
+    # Normalize org fields in employee data (optional, but helps consistency)
+    for col in ["cost_center_name", "dept_name", "title", "full_name", "status_name"]:
+        if col in user_data.columns:
+            user_data[col] = user_data[col].astype(str).str.strip()
 
     # 3) Primary merge on email
     merged = (
@@ -213,18 +251,32 @@ async def get_cached_final_df() -> pd.DataFrame:
             suffixes=("", "_emp"),
         )
         .drop(columns=["smtp"], errors="ignore")
-        .rename(columns={"full_name": "FULL_NAME", "status_name": "STATUS_NAME"})
+        .rename(
+            columns={
+                "full_name": "FULL_NAME",
+                "status_name": "STATUS_NAME",
+                "cost_center_name": "cost_center_name",
+                "dept_name": "dept_name",
+                "title": "title",
+            }
+        )
     )
+
+    # If merge produced duplicate org columns (because df already had them),
+    # keep the merged values and drop extras.
+    for col in ["cost_center_name", "dept_name", "title"]:
+        alt = f"{col}_emp"
+        if alt in merged.columns:
+            merged[col] = merged[col].fillna(merged[alt])
+            merged.drop(columns=[alt], inplace=True)
 
     # 4) Fallback merge ONLY where FULL_NAME is missing
     missing_mask = merged["FULL_NAME"].isna()
     if missing_mask.any():
         fallback_emp = _get_fallback_employee_data().copy()
-        # normalize fallback key
+
         if "smtp" in fallback_emp.columns:
-            fallback_emp["smtp"] = (
-                fallback_emp["smtp"].astype(str).str.strip().str.lower()
-            )
+            fallback_emp["smtp"] = fallback_emp["smtp"].astype(str).str.strip().str.lower()
 
         to_fix = merged.loc[missing_mask].merge(
             fallback_emp,
@@ -238,12 +290,20 @@ async def get_cached_final_df() -> pd.DataFrame:
         name_map = to_fix.set_index("USER_EMAIL")["full_name"].to_dict()
         status_map = to_fix.set_index("USER_EMAIL")["status_name"].to_dict()
 
-        merged.loc[missing_mask, "FULL_NAME"] = merged.loc[
-            missing_mask, "USER_EMAIL"
-        ].map(name_map)
-        merged.loc[missing_mask, "STATUS_NAME"] = merged.loc[
-            missing_mask, "USER_EMAIL"
-        ].map(status_map)
+        merged.loc[missing_mask, "FULL_NAME"] = merged.loc[missing_mask, "FULL_NAME"].fillna(
+            merged.loc[missing_mask, "USER_EMAIL"].map(name_map)
+        )
+        merged.loc[missing_mask, "STATUS_NAME"] = merged.loc[missing_mask, "STATUS_NAME"].fillna(
+            merged.loc[missing_mask, "USER_EMAIL"].map(status_map)
+        )
+
+        # Also fill org fields from fallback merge
+        for col in ["cost_center_name", "dept_name", "title"]:
+            if col in to_fix.columns:
+                col_map = to_fix.set_index("USER_EMAIL")[col].to_dict()
+                merged.loc[missing_mask, col] = merged.loc[missing_mask, col].fillna(
+                    merged.loc[missing_mask, "USER_EMAIL"].map(col_map)
+                )
 
     # 5) Partner email repair (still missing + partner email)
     still_missing = merged["FULL_NAME"].isna()
@@ -263,12 +323,20 @@ async def get_cached_final_df() -> pd.DataFrame:
         name_map2 = to_fix2.set_index("USER_EMAIL")["full_name"].to_dict()
         status_map2 = to_fix2.set_index("USER_EMAIL")["status_name"].to_dict()
 
-        merged.loc[partner_missing, "FULL_NAME"] = merged.loc[
-            partner_missing, "USER_EMAIL"
-        ].map(name_map2)
-        merged.loc[partner_missing, "STATUS_NAME"] = merged.loc[
-            partner_missing, "USER_EMAIL"
-        ].map(status_map2)
+        merged.loc[partner_missing, "FULL_NAME"] = merged.loc[partner_missing, "FULL_NAME"].fillna(
+            merged.loc[partner_missing, "USER_EMAIL"].map(name_map2)
+        )
+        merged.loc[partner_missing, "STATUS_NAME"] = merged.loc[partner_missing, "STATUS_NAME"].fillna(
+            merged.loc[partner_missing, "USER_EMAIL"].map(status_map2)
+        )
+
+        # Also fill org fields from partner repair merge
+        for col in ["cost_center_name", "dept_name", "title"]:
+            if col in to_fix2.columns:
+                col_map2 = to_fix2.set_index("USER_EMAIL")[col].to_dict()
+                merged.loc[partner_missing, col] = merged.loc[partner_missing, col].fillna(
+                    merged.loc[partner_missing, "USER_EMAIL"].map(col_map2)
+                )
 
     # 6) Additional resolution passes for anything STILL missing FULL_NAME
     #    a) bname -> USER_NAME
@@ -319,11 +387,13 @@ async def get_cached_final_df() -> pd.DataFrame:
 
     if final_missing.any():
         merged.loc[final_missing, "FULL_NAME"] = "Possibly Terminated"
-
-        # Optional: also set STATUS_NAME to something meaningful
         merged.loc[final_missing, "STATUS_NAME"] = merged.loc[
             final_missing, "STATUS_NAME"
         ].fillna("Unknown")
+
+        # If org fields are still missing, fill with something consistent
+        for col in ["cost_center_name", "dept_name", "title"]:
+            merged.loc[final_missing, col] = merged.loc[final_missing, col].fillna("Unknown")
 
     return merged
 
@@ -337,7 +407,7 @@ async def get_cached_cost_centers_list() -> List[str]:
 
     if "cost_center_name" not in df.columns:
         raise HTTPException(
-            status_code=400, detail="CSV missing 'cost_center_name' column"
+            status_code=400, detail="Missing 'cost_center_name' after employee merge"
         )
 
     centers = sorted(
@@ -371,7 +441,7 @@ async def get_license_reduction(
 
     if "cost_center_name" not in df.columns:
         raise HTTPException(
-            status_code=400, detail="CSV missing 'cost_center_name' column"
+            status_code=400, detail="Missing 'cost_center_name' after employee merge"
         )
 
     mask = df["cost_center_name"].astype(str).str.strip().eq(cost_center_name.strip())
