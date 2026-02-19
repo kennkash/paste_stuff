@@ -1,8 +1,16 @@
-fix(portal-jql-table): use issue-level serviceDeskId for customer portal links
+feat(issue-service): global JQL ORDER BY + status/priority facets
 
-Previously, JQL table links used the portal-level serviceDeskId,
-causing non-JSM issues to incorrectly resolve to
-/servicedesk/customer/portal/{id}/{issueKey} and return 404.
+- Add sortField and sortDir support to IssueService.searchIssues()
+- Apply safe ORDER BY rewrite (allow-listed fields only)
+- Compute status/priority facets across full JQL match-set
+- Add bounded facet scan for Data Center safety
+- Extend IssueSearchResponseDTO with facets
 
-Now links are determined per issue using issue.serviceDeskId,
-falling back to /browse/{issueKey} for non-JSM issues.
+
+feat(jql-table): switch to server-side sorting + facet-driven filters
+
+- Send sortField and sortDir to backend in JQL mode
+- Request facets for full-result filter options
+- Remove client-only sorting in JQL mode
+- Populate status/priority filters from server facets
+- Reset page on sort change
