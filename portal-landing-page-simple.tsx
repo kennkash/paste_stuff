@@ -5,11 +5,22 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, FolderTree, Search, Loader2, ListTodo, CheckCircle, ClipboardList, Info } from "lucide-react";
+import {
+  Clock,
+  FolderTree,
+  Search,
+  Loader2,
+  ListTodo,
+  CheckCircle,
+  ClipboardList,
+  Info,
+  ExternalLink,
+} from "lucide-react";
 import { CloudGPTIcon } from "@/components/ui/cloudgpt-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { usePortals } from "@/hooks/use-portals";
 import { useRecentPortals } from "@/hooks/use-recent-portals";
@@ -25,6 +36,7 @@ import { searchProjects } from "@/lib/api/projects-client";
 import { ROUTE_PATHS } from "@/types/router";
 
 const HEADER_HEIGHT = 56;
+const DOC_URL = "https://confluence.samsungaustin.com/x/Kt7iLw";
 
 // Valid tab values from query parameter
 type TabValue = "all" | "recent" | "requests" | "approvals" | "assigned";
@@ -33,11 +45,10 @@ const VALID_TABS: TabValue[] = ["all", "recent", "requests", "approvals", "assig
 // Map query param values to tab values (for URL: ?tab=myrequests, ?tab=myapprovals)
 const QUERY_TO_TAB: Record<string, TabValue> = {
   "": "all",
-  "recent": "recent",
-  "myrequests": "requests",
-  "myapprovals": "approvals",
-  "assignee": "assigned"
-  
+  recent: "recent",
+  myrequests: "requests",
+  myapprovals: "approvals",
+  assignee: "assigned",
 };
 
 // Map tab values to query param values
@@ -46,7 +57,7 @@ const TAB_TO_QUERY: Record<TabValue, string> = {
   recent: "recent",
   requests: "myrequests",
   approvals: "myapprovals",
-  assigned:  "assignee"
+  assigned: "assignee",
 };
 
 type BootstrapWindow = typeof window & {
@@ -59,16 +70,17 @@ export function PortalLandingPageSimple() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
   // Get resource base for asset paths
   const getResourceBase = () => {
     if (typeof window === "undefined") return "";
     const bootstrap = (window as BootstrapWindow).RAIL_PORTAL_BOOTSTRAP;
     return bootstrap?.resourceBase || "";
   };
-  
+
   const resourceBase = getResourceBase();
   const normalizedBase = resourceBase.endsWith("/") ? resourceBase.slice(0, -1) : resourceBase;
+
   // Construct the full path to the Samsung logo using the Atlassian plugin resource path
   const getSamsungLogoPath = () => {
     if (normalizedBase) {
@@ -78,6 +90,7 @@ export function PortalLandingPageSimple() {
     // Fallback path if resourceBase is not available
     return "/download/resources/com.samsungbuilder.jsm.rail-portal:rail-portal-resources/SAS_Black_Logo.png";
   };
+
   const { data, isLoading } = usePortals();
   const { recentPortals } = useRecentPortals();
 
@@ -93,6 +106,9 @@ export function PortalLandingPageSimple() {
   const [isGlobalSearching, setIsGlobalSearching] = useState(false);
   const [globalSearchError, setGlobalSearchError] = useState<string | null>(null);
 
+  // Option A: info icon popover state
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+
   // Sync URL query param changes to tab state (e.g., browser back/forward)
   useEffect(() => {
     const newTab = getTabFromQuery(searchParams);
@@ -102,13 +118,16 @@ export function PortalLandingPageSimple() {
   }, [searchParams, activeTab, getTabFromQuery]);
 
   // Handle tab changes by navigating to the corresponding URL with query param
-  const setActiveTab = useCallback((tab: TabValue) => {
-    const queryValue = TAB_TO_QUERY[tab];
-    const basePath = ROUTE_PATHS.CUSTOMER_PORTAL;
-    const targetUrl = queryValue ? `${basePath}?tab=${queryValue}` : basePath;
-    navigate(targetUrl);
-    setActiveTabState(tab);
-  }, [navigate]);
+  const setActiveTab = useCallback(
+    (tab: TabValue) => {
+      const queryValue = TAB_TO_QUERY[tab];
+      const basePath = ROUTE_PATHS.CUSTOMER_PORTAL;
+      const targetUrl = queryValue ? `${basePath}?tab=${queryValue}` : basePath;
+      navigate(targetUrl);
+      setActiveTabState(tab);
+    },
+    [navigate],
+  );
 
   // Echo AI state
   const echoEnabled = useEchoAIStore((state) => state.enabled);
@@ -152,7 +171,7 @@ export function PortalLandingPageSimple() {
     }
     const sorted = Array.from(names).sort((a, b) => a.localeCompare(b));
     // Move "IT Ticket Service Desks" to the front if it exists
-    const itTicketIndex = sorted.findIndex(name => name === "IT Ticket Service Desks");
+    const itTicketIndex = sorted.findIndex((name) => name === "IT Ticket Service Desks");
     if (itTicketIndex > 0) {
       const [itTicket] = sorted.splice(itTicketIndex, 1);
       sorted.unshift(itTicket);
@@ -176,7 +195,7 @@ export function PortalLandingPageSimple() {
     triggerRecentPortalsUpdate();
 
     if (!portal.isLive && portal.jsmPortalId) {
-      window.open(`/servicedesk/customer/portal/${portal.jsmPortalId}/`, '_blank', 'noopener,noreferrer');
+      window.open(`/servicedesk/customer/portal/${portal.jsmPortalId}/`, "_blank", "noopener,noreferrer");
       return;
     }
     window.location.href = `/plugins/servlet/customer-rail/${portal.projectKey}`;
@@ -221,11 +240,7 @@ export function PortalLandingPageSimple() {
       }
 
       if (match.portalId) {
-        window.open(
-          `/servicedesk/customer/portal/${match.portalId}/`,
-          "_blank",
-          "noopener,noreferrer",
-        );
+        window.open(`/servicedesk/customer/portal/${match.portalId}/`, "_blank", "noopener,noreferrer");
         return;
       }
 
@@ -244,11 +259,7 @@ export function PortalLandingPageSimple() {
       <header className="border-b bg-background sticky top-0 z-50" style={{ height: HEADER_HEIGHT }}>
         <div className="h-full px-6 flex items-center justify-between">
           <div className="flex items-center">
-            <img
-              src={getSamsungLogoPath()}
-              alt="Samsung"
-              className="h-6 object-contain"
-            />
+            <img src={getSamsungLogoPath()} alt="Samsung" className="h-6 object-contain" />
           </div>
           <div className="flex items-center gap-3">
             {echoEnabled && (
@@ -260,9 +271,7 @@ export function PortalLandingPageSimple() {
               >
                 <span className="flex items-center gap-2 text-primary">
                   <CloudGPTIcon size={16} className="text-primary" />
-                  <span className="hidden sm:inline">
-                    {isEchoVisible ? "Hide Echo" : "Ask Echo"}
-                  </span>
+                  <span className="hidden sm:inline">{isEchoVisible ? "Hide Echo" : "Ask Echo"}</span>
                 </span>
               </Button>
             )}
@@ -303,7 +312,7 @@ export function PortalLandingPageSimple() {
                 <TabsTrigger value="assigned" className="cursor-pointer">
                   <ClipboardList className="h-3.5 w-3.5 mr-1.5" />
                   Assigned to Me
-                  </TabsTrigger>
+                </TabsTrigger>
               </TabsList>
 
               {/* Recently Visited Portals Tab */}
@@ -320,11 +329,21 @@ export function PortalLandingPageSimple() {
                 <div className="flex gap-6">
                   {/* Sidebar Categories */}
                   <div className="w-48 shrink-0 space-y-1">
-                    <CategoryButton label="All portals" isActive={activeCategory === "all"} onClick={() => setActiveCategory("all")} />
+                    <CategoryButton
+                      label="All portals"
+                      isActive={activeCategory === "all"}
+                      onClick={() => setActiveCategory("all")}
+                    />
                     {categories.map((name) => (
-                      <CategoryButton key={name} label={name} isActive={activeCategory === name} onClick={() => setActiveCategory(name)} />
+                      <CategoryButton
+                        key={name}
+                        label={name}
+                        isActive={activeCategory === name}
+                        onClick={() => setActiveCategory(name)}
+                      />
                     ))}
                   </div>
+
                   {/* Portal List */}
                   <div className="flex-1">
                     <div className="mb-4">
@@ -349,17 +368,12 @@ export function PortalLandingPageSimple() {
                           onClick={() => void handleGlobalSearch()}
                           disabled={isGlobalSearching}
                         >
-                          {isGlobalSearching ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            "Search"
-                          )}
+                          {isGlobalSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
                         </Button>
                       </div>
-                      {globalSearchError && (
-                        <p className="mt-1 text-xs text-destructive">{globalSearchError}</p>
-                      )}
+                      {globalSearchError && <p className="mt-1 text-xs text-destructive">{globalSearchError}</p>}
                     </div>
+
                     {isLoading && <p className="text-sm text-muted-foreground">Loading portals...</p>}
                     {!isLoading && filteredPortals.length === 0 && (
                       <EmptyState icon={FolderTree} title="No portals found" subtitle="Try a different search or filter" />
@@ -406,6 +420,7 @@ export function PortalLandingPageSimple() {
                   showFilter={false}
                 />
               </TabsContent>
+
               {/* Assigned to Me Tab */}
               <TabsContent value="assigned" className="mt-4">
                 <StandaloneJQLTable
@@ -446,22 +461,53 @@ export function PortalLandingPageSimple() {
         )}
       </AnimatePresence>
 
-      {/* Info Chip - Bottom Left Corner */}
+      {/* Info Icon (Option A) - Bottom Left Corner */}
       <div className="fixed bottom-4 left-4 z-50">
-        <button
-          onClick={() => window.open("https://confluence.samsungaustin.com/x/Kt7iLw", "_blank", "noopener,noreferrer")}
-          className="relative flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full px-4 py-2 text-sm font-medium cursor-pointer transition-all shadow-sm"
-        >
-          <div className="relative">
-            <Info className="h-4 w-4" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">!</span>
-          </div>
+        <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="relative h-10 w-10 rounded-full shadow-sm bg-background cursor-pointer"
+              aria-label="Help: New ticket portal"
+            >
+              <Info className="h-5 w-5" />
+              {/* Optional attention dot */}
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                !
+              </span>
+            </Button>
+          </PopoverTrigger>
 
-          {/* Expandable tooltip */}
-          <div className="group-hover/btn:max-w-xs transition-all duration-200 opacity-0 group-hover/btn:opacity-100 w-0 overflow-hidden">
-            Learn more about the new ticket portal
-          </div>
-        </button>
+          <PopoverContent align="start" side="top" className="w-80 p-4">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <div className="text-sm font-semibold">New ticket portal</div>
+                <p className="text-sm text-muted-foreground">
+                  Learn what changed, how to find request types, and where common actions moved in the new portal.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2">
+                <Button type="button" variant="ghost" onClick={() => setIsInfoOpen(false)}>
+                  Close
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={() => {
+                    window.open(DOC_URL, "_blank", "noopener,noreferrer");
+                    setIsInfoOpen(false);
+                  }}
+                >
+                  Open documentation
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );
@@ -485,7 +531,7 @@ function CategoryButton({ label, isActive, onClick }: { label: string; isActive:
       onClick={onClick}
       className={cn(
         "w-full rounded-md px-3 py-2 text-left text-sm cursor-pointer hover:bg-accent",
-        isActive && "bg-accent text-accent-foreground font-medium"
+        isActive && "bg-accent text-accent-foreground font-medium",
       )}
     >
       {label}
@@ -514,10 +560,14 @@ function PortalCard({ portal, onSelect }: { portal: PortalInfo; onSelect: (p: Po
       <div className="flex items-center gap-2 w-full min-w-0">
         <span className="font-medium text-foreground truncate flex-1 min-w-0">{portal.projectName}</span>
         {portal.isLive && (
-          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-px text-[10px] font-semibold text-emerald-700">Live</span>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-px text-[10px] font-semibold text-emerald-700">
+            Live
+          </span>
         )}
         {!portal.isLive && portal.jsmPortalId && (
-          <span className="shrink-0 rounded-full bg-blue-100 px-1.5 py-px text-[10px] font-semibold text-blue-700">JSM</span>
+          <span className="shrink-0 rounded-full bg-blue-100 px-1.5 py-px text-[10px] font-semibold text-blue-700">
+            JSM
+          </span>
         )}
       </div>
       <p className="text-xs text-muted-foreground">{portal.projectKey}</p>
