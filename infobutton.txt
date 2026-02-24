@@ -1,0 +1,11 @@
+How can I make this info chip be just an info icon that expands to show the text on click and then somehow route them to the documentation... I know that a double click would be confusing so give me some UI design advice:
+<div className="fixed bottom-4 left-4 z-50">
+<button
+onClick={() => window.open("https://confluence.samsungaustin.com/x/Kt7iLw", "_blank", "noopener,noreferrer")}
+className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full px-3 py-2 text-sm font-medium cursor-pointer transition-colors shadow-sm"
+>
+<Info className="h-4 w-4" />
+<span>Learn more about the new ticket portal</span>
+</button>
+</div>
+</div>
