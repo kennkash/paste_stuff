@@ -1,3 +1,107 @@
+def extract_space_key_from_webui(webui: str) -> str:
+    """
+    Extracts the Confluence space key from a webui path like:
+    /display/ABCD/page+name
+    """
+    parts = webui.strip("/").split("/")
+    if len(parts) >= 2 and parts[0] == "display":
+        return parts[1]
+    return ""
+    
+    for result in response_json["results"]:
+    page_id = result.get("id", "")
+    title = result.get("title", "")
+    webui = result["_links"].get("webui", "")
+    space_key = extract_space_key_from_webui(webui)
+
+    if page_id not in existing_approval_ids:
+        new_approval = {
+            "id": page_id,
+            "title": title,
+            "webui": f"{base_view_url}{page_id}",
+            "approvers": [],
+            "space": space_key,
+        }
+        new_approvals.append(new_approval)
+        ids.append({"id": page_id})
+        existing_approval_ids.add(page_id)
+    else:
+        existing_approval = next(
+            (a for a in existing_approvals if a["id"] == page_id), None
+        )
+        if existing_approval:
+            changed = False
+            if existing_approval["title"] != title:
+                existing_approval["title"] = title
+                changed = True
+
+            full_url = f"{base_view_url}{page_id}"
+            if existing_approval["webui"] != full_url:
+                existing_approval["webui"] = full_url
+                changed = True
+
+            if existing_approval.get("space") != space_key:
+                existing_approval["space"] = space_key
+                changed = True
+
+            if changed:
+                save_approvals_to_s3(existing_approvals)
+    
+    
+    
+
+def send_initial_notification(approval, approvers):
+    """Sends an initial Jarvis alert to a defined list of users when a new page goes into approval"""
+
+    pending_approvers = [
+        user['user']
+        for user in approvers
+        if not user['approved'] and not user['rejected']
+    ]
+
+    nt_id_to_mysingle_id = knox_id(pending_approvers)
+    pending_approvers_mysingle = [
+        nt_id_to_mysingle_id.get(name, None) 
+        for name in pending_approvers
+    ]
+    recipients = [id for id in pending_approvers_mysingle if id is not None]
+
+    print("Pending Approvers: ", recipients)
+
+    # Dynamic space from this page's approval data
+    space = approval.get("space", "")
+
+    for user in recipients:
+        try:
+            data: dict = {
+                "confluenceLogo": _load_logo_b64(),
+                "space": space,
+                "pageTitle": f"{approval['title']} Submitted for Content Review",
+                "title": approval["title"],
+                "pageUrl": approval["webui"],
+            }
+
+            payload = {
+                "adaptiveCards": adaptive_card,
+                "data": json.dumps(data),
+            }
+
+            adaptive_card_push_request = PushRequest(
+                msg=json.dumps(payload),
+                type=PushType.ADAPTIVE_CARD,
+                recipients=[user],
+            )
+
+            stats["jarvis_messages_sent"] += 1
+            jarvis.chat_push_post(adaptive_card_push_request)
+            print(f"Initial notification sent successfully to {user} for {approval['title']}")
+        except ApiException as e:
+            print("Exception when calling ChatApi->chat_push_post: %s\n" % e)
+            print(f"Error sending reminder to {user}: {e}")
+
+
+
+
 """
 Module to alert users when a page in Confluence enters an approval state and needs their review.
 
