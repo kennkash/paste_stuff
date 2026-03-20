@@ -1,0 +1,81 @@
+Got it — for a single narrow poster slide, this needs to be tight, high-level, and skimmable.
+
+Here’s a poster-ready short version for the 4 required sections.
+
+⸻
+
+1. Problem Description
+
+As Jira adoption grew, teams increasingly needed portals for documentation, request intake, and approvals. The default path was often to create a Jira Service Management (JSM) project, even when teams only needed simple intake and routing.
+
+This created extra admin overhead, added license pressure, increased service project sprawl, and required a third-party plugin for portal customization. As a result, all Jira users were impacted, including request submitters, project teams, and administrators.
+
+⸻
+
+2. Work SMART Method
+
+We studied how teams were handling intake and portal needs in Jira and focused on reducing unnecessary complexity, cost, and wasted effort.
+
+Our approach aligned with Work SMART principles by:
+	•	focusing on customer value,
+	•	simplifying workflows at the point of activity,
+	•	standardizing intake paths,
+	•	and reducing waste from extra tools, tickets, and administration.
+
+Before production release, we ran a multi-month pilot in staging so users could test functionality and provide feedback.
+
+⸻
+
+3. Improvement
+
+We developed RAIL, a Jira Data Center plugin that enables project-scoped portals for intake, approvals, documentation, and forms without requiring new JSM projects for lightweight use cases.
+
+RAIL provides reusable portal components, project-level control, and routing to Jira Software or internal forms. Project admins govern their own portal experience.
+
+To sustain the improvement, we maintain compatibility with Jira, Atlassian SDK, and Node.js updates, and provide portal training and documentation in Confluence.
+
+⸻
+
+4. Results
+
+RAIL was deployed across all 104 JSM projects and expanded to 3 software projects with project-scoped portals.
+
+The solution:
+	•	reduces dependency on third-party portal tooling,
+	•	avoids unnecessary JSM growth,
+	•	lowers administrative overhead,
+	•	and gives projects more direct ownership of intake and user guidance.
+
+Based on conservative production estimates, RAIL avoids roughly $200K/year in incremental JSM license cost, in addition to eliminating about $16.2K/year in portal plugin cost.
+
+⸻
+
+Here’s an even shorter version in case the template is very cramped:
+
+⸻
+
+Problem Description
+
+Jira teams needed portals for intake, documentation, and approvals, but the default solution was often a new JSM project. This increased admin effort, license pressure, service project sprawl, and reliance on third-party portal tooling. All Jira users were affected.
+
+Work SMART Method
+
+We analyzed current intake workflows and targeted waste tied to extra tools, excess administration, and unnecessary ticketing complexity. We emphasized customer value, simplified workflows, standardized intake, and validated the approach through a multi-month staging pilot.
+
+Improvement
+
+We built RAIL, a Jira Data Center plugin that enables project-scoped portals for intake, approvals, documentation, and forms. Project admins manage their own portals. Sustainability is supported through platform upkeep, Confluence documentation, and user training.
+
+Results
+
+RAIL was implemented across 104 JSM projects and 3 software projects. It reduces third-party tool dependence, limits unnecessary JSM growth, and lowers admin overhead. Conservative estimates show about $200K/year avoided in JSM license growth plus $16.2K/year in plugin savings.
+
+⸻
+
+My recommendation: use the second version for the poster body, then pull out the numbers into bold callout boxes:
+104 JSM Projects
+3 Software Portals
+~$200K/yr Avoided JSM Cost
+~$16.2K/yr Plugin Savings
+
+I can also turn this into a true poster layout draft with section headers and ultra-short body text sized for the narrow banner.
