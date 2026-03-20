@@ -1,3 +1,8 @@
+We evaluated how portal and intake needs were being handled across Jira and identified waste in relying on JSM for lightweight software-team use cases. The team focused on understanding current-state intake patterns, reducing unnecessary service project creation, and standardizing a simpler model aligned to existing Jira Software usage.
+
+This approach applied Work SMART principles of understanding current reality, eliminating waste, simplifying workflows, and improving at the point of activity. Targeted waste included excess licensing, avoidable administration, fragmented portal experiences, and unnecessary ticket creation.
+
+
 Got it — for a single narrow poster slide, this needs to be tight, high-level, and skimmable.
 
 Here’s a poster-ready short version for the 4 required sections.
