@@ -1,0 +1,52 @@
+RAIL Portal: Project-Scoped Portals and Intake
+
+Daniel Moody1, Kennedy Kashmiry2 and Sramanth Varma Pandeti3
+
+
+1. INTRODUCTION
+
+As Jira adoption grows across large engineering organizations, teams increasingly need a consistent way to direct users to documentation, submit requests, and trigger approval workflows. In practice, the default solution for these needs is often to create a Jira Service Management (JSM) project. While effective for true service desk use cases, this approach does not scale well when applied broadly to software teams that primarily require intake and routing rather than full service workflows.
+
+At SAS, this pattern resulted in two related challenges. First, software projects requiring only basic intake or standardized forms were forced into the JSM model, driving additional administrative overhead and license growth. Second, customer-facing portal customization required a third-party plugin, Refined for Jira, adding cost while still limiting project-level flexibility.
+
+To address these issues, we developed RAIL (Responsive Automation and Intake Layer), an inhouse made Jira Data Center plugin that enables software projects to host their own portals for request intake, automation, and approvals. RAIL allows users to submit Jira Software tickets or internal FORMS (KPA) requests directly from a project-scoped portal, without creating new JSM projects. By extending Jira’s native project model rather than expanding service desk usage, RAIL aims to reduce platform complexity while maintaining a familiar Jira experience.
+
+ Fig. 1. Distribution of Jira projects by type (Software vs Service Management vs Other).
+
+2. METHODOLOGY
+
+RAIL is implemented as a Jira Data Center plugin and deployed as a single JAR within the Jira runtime. The frontend is a React-based single page application written in TypeScript and bundled into static assets using esbuild. These assets are served directly by Jira through plugin web resources.
+
+The backend is implemented in Java 17 using the Atlassian SDK. Portal configurations are stored as JSON objects in Jira’s PluginSettings key-value store, with one configuration per project. Each save operation creates a versioned history entry to support rollback. REST endpoints under /rest/rail/1.0/ are used to load, save, and publish portal configurations.
+
+Portals are composed from reusable components including hero sections, cards, FAQs, JQL-backed tables, forms, and an embedded AI assistant. Visibility rules are evaluated server-side using Jira user, group, and project role information. Request submission routes users either to Jira Software issue creation or to internal FORMS (KPA) workflows, depending on project configuration.
+
+3. RESULTS AND DISCUSSION
+
+3.1 Tool Consolidation and Portal Standardization
+
+Prior to RAIL, customer-facing navigation and portal layout customization relied on the Refined for Jira plugin, which incurs an annual licensing cost of approximately $16.2k. RAIL replaces this functionality by providing project-scoped portals, layout control, branding, and visibility rules directly within Jira. This enables retirement of Refined without loss of capability and produces immediate, recurring cost savings.
+
+3.2 Service Project Avoidance and License Impact
+
+RAIL also changes how request intake is handled across software projects. In the current Jira environment, 99 service projects are supported by approximately 900 JSM licenses. Analysis of these projects shows a median staffing level of 26.5 licenses per service project, with a mean of 35.6 and a 25th percentile of 18.25.
+
+To quantify the license impact, a conservative scenario was evaluated in which only 10 percent of the organization’s 418 software projects would otherwise require conversion to JSM. This corresponds to approximately 42 projects. Applying the observed median staffing level yields an estimated need for 1,113 licenses. After accounting for approximately 100 unused JSM seats, this results in 1,013 incremental licenses. At an incremental cost of $204 per agent per year, this corresponds to approximately $207k in avoided annual licensing cost.
+
+  Fig. 2. Box-and-whisker plot showing agent distribution across existing JSM projects.
+
+ 
+Fig. 4. Incremental JSM license cost under conservative 10 percent adoption assumptions.
+
+3.3 Operational Effects
+
+Beyond direct licensing savings, RAIL reduces service project sprawl, simplifies permission management, and lowers ongoing administrative effort. Software teams retain ownership of their intake paths, while platform administrators avoid long-term growth in JSM configuration and maintenance overhead.
+
+In addition to routing requests and avoiding service project expansion, RAIL reduces unnecessary ticket creation by enabling guided self-service at the point of intake. Project portals can surface relevant Confluence documentation, FAQs, and reference links alongside request options, allowing users to resolve common questions without submitting a ticket. An embedded AI chatbot further assists by clarifying request types, directing users to appropriate resources, and helping determine whether a ticket is required before submission. Unlike Refined for Jira, which focuses primarily on portal presentation, RAIL actively deflects low-value and misrouted requests before they enter software or service queues. This reduction in ticket volume and noise reinforces the operational and cost benefits described above and leads directly to the conclusions that follow.
+
+
+4. CONCLUSION
+
+RAIL (Responsive Automation and Intake Layer) demonstrates that request intake and approval workflows can be supported at scale without proportional growth in Jira Service Management usage. By enabling software projects to host their own portals for automation, intake, and FORMS (KPA) workflows, RAIL avoids unnecessary service project creation and consolidates portal functionality previously delivered through third-party plugins.
+
+Using conservative, measured assumptions from production Jira data, RAIL avoids approximately $200k per year in incremental JSM licensing under minimal adoption scenarios, in addition to eliminating recurring portal plugin costs. These results show that extending Jira’s native project model provides a sustainable path for growth, improved usability, and long-term cost control in large Jira deployments.
