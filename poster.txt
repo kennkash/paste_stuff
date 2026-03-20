@@ -6,10 +6,9 @@ Here’s a poster-ready short version for the 4 required sections.
 
 1. Problem Description
 
-As Jira adoption grew, teams increasingly needed portals for documentation, request intake, and approvals. The default path was often to create a Jira Service Management (JSM) project, even when teams only needed simple intake and routing.
+As Jira adoption grew, teams increasingly needed a better way to guide users before ticket submission, route requests, and support approval-based workflows. Many tickets were submitted for common questions or known issues that could have been resolved through existing documentation if users were directed there first, while approval workflows were only supported in Jira Service Management (JSM) projects.
 
-This created extra admin overhead, added license pressure, increased service project sprawl, and required a third-party plugin for portal customization. As a result, all Jira users were impacted, including request submitters, project teams, and administrators.
-
+This pushed teams toward creating JSM projects even when they only needed lightweight intake, documentation guidance, or approvals. The result was added administrative overhead, license pressure, service project sprawl, and dependence on a third-party plugin for portal customization, impacting request submitters, project teams, and administrators.
 ⸻
 
 2. Work SMART Method
