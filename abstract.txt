@@ -50,3 +50,36 @@ In addition to routing requests and avoiding service project expansion, RAIL red
 RAIL (Responsive Automation and Intake Layer) demonstrates that request intake and approval workflows can be supported at scale without proportional growth in Jira Service Management usage. By enabling software projects to host their own portals for automation, intake, and FORMS (KPA) workflows, RAIL avoids unnecessary service project creation and consolidates portal functionality previously delivered through third-party plugins.
 
 Using conservative, measured assumptions from production Jira data, RAIL avoids approximately $200k per year in incremental JSM licensing under minimal adoption scenarios, in addition to eliminating recurring portal plugin costs. These results show that extending Jira’s native project model provides a sustainable path for growth, improved usability, and long-term cost control in large Jira deployments.
+
+
+
+
+Above you will find an abstract for my teams submission in the idea fair. We have been chosen to create a poster now with defined sections. The sections are: 
+
+1. Problem Description: This section should be an operational definition of the problem you were trying to address. It should paint a picture of the undesirable condition that prompted you to take action. Make sure you identify who and what (metric) was negatively impacted before the situation was addressed. No mention of the solution or results from implemented actions should be made. 
+2. Work Smart Method: This section should detail your approach to problem-solving. What Work SMART rules did you apply? What principles did you use to guide you along your path to success? What types of waste did you target? What methodology did you employ to perform an in-depth analysis of your current state, isolate root causes, identify countermeasures to documented losses, conduct experiments, or validate efficacy of proposed solutions? [If you are unfamiliar with Work SMART rules and prinicples, please refer to the notes section of this slide.]
+    10 Principles of Work SMART
+    Connect to your customer and always add value.
+    Seek every problem as an opportunity to focus on the ideal state. 
+    Decision making at the point of activity.
+    Structure, operate and improve your organization’s activities, connections and pathways.
+    Standardization is the foundation of continuous improvement;  create high agreement and no ambiguity.
+    Relentlessly pursue systematic waste elimination.
+    Create frequent points of reflection to be a learning organization.
+    Sustainable change happens only at the systems level. 
+    Understand current reality via deep observation.
+    Leaders must be learners and teachers
+    
+    The 4 Rules of Work SMART:
+    Structure every activity
+    Clearly connect every supplier & customer
+    Specify and simplify every work flow
+    Improve through experimentation at the point of activity
+3. Improvement: This sec tion should specify significant changes (modifications) made to the process, product, system, service, or whatever you intended to influence through your initiative? It should showcase the results of your experimentation or prototype evaluation (not initiative conclusions). Please identify sustaining mechanisms put in place to prevent your improvement from obsolescence such as preventative maintenance, controlled procedures, user manuals, training, documented business processes, etc. [Pictures/images/charts/tables representing the contrast between your starting condition(s) and target state may be displayed.]
+4. Results: This section should express your accomplishments in metric form (improvement in customer/user feedback, percent increase in value-added activity, decline in stop loss, defect reduction, yeild enchancement, etc.,), speak to the success of the solution implemented, or present your conclusions. It should summarize the impact of the improvements you made. You may also identify other opportunities to spread your ingenuity (future applications), or future enhancements relevant to the initiative -- how you are going to continue to raise the bar. 
+
+
+
+
+
+I want you to take the abstract, and format in into the defined sections above as much as you can. If the abstract content doesn't fit into a section or you need more context of the project, please ask before making assumptions ! 
