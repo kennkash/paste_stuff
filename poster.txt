@@ -1,3 +1,17 @@
+We developed RAIL, a Jira Data Center plugin that allows software projects to host their own portals for request intake, documentation, approvals, and internal forms without requiring a new JSM project.
+
+RAIL provides reusable portal components, project-level configuration, visibility controls, and guided self-service through documentation links, FAQs, forms, JQL tables, and an embedded AI assistant. This created a standardized portal model within Jira Software and reduced dependence on both JSM expansion and third-party portal tooling.
+
+4. Results
+
+RAIL shifted portal and intake support toward software projects, allowing teams to use the license footprint they already had instead of expanding JSM for lightweight intake needs.
+
+This enables retirement of Refined for Jira, avoiding about $16.2K annually in plugin cost, and avoids about $207K annually in incremental JSM licensing under conservative adoption assumptions. In addition to cost savings, RAIL reduces project sprawl, lowers admin overhead, and improves self-service before tickets are submitted.
+
+
+
+
+
 We evaluated how portal and intake needs were being handled across Jira and identified waste in relying on JSM for lightweight software-team use cases. The team focused on understanding current-state intake patterns, reducing unnecessary service project creation, and standardizing a simpler model aligned to existing Jira Software usage.
 
 This approach applied Work SMART principles of understanding current reality, eliminating waste, simplifying workflows, and improving at the point of activity. Targeted waste included excess licensing, avoidable administration, fragmented portal experiences, and unnecessary ticket creation.
