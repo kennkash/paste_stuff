@@ -1,52 +1,205 @@
-Yes — here are simple, end-user-friendly descriptions you can use for the panels shown in your dashboard.
-
-API Information row
-
-API Information
-A summary view of how the selected APIs are being used and how they are performing.
-
-Panels
-
-Total Requests
-Shows the total number of API requests received in the last 24 hours.
-
-Requests Count
-Shows how many requests each API endpoint received in the last 24 hours.
-
-Requests Average Duration
-Shows the average time each API request takes to complete.
-
-Percent of 2xx Requests
-Shows the share of requests that completed successfully for each endpoint.
-
-Percent of !2xx Requests
-Shows the share of requests that did not return a successful response, broken out by endpoint and status code.
-
-PR 99 Requests Duration
-Shows the slowest request times for each endpoint, based on the top 1% of requests.
-
-Request time
-Shows how request time changes over time for each endpoint.
-
-Request Per Sec
-Shows how many requests each endpoint is receiving per second.
-
-Average Request Duration per 10min
-Shows the average response time for the selected apps, updated in 10-minute intervals.
-
-API Response Time
-Shows response times across endpoints in a heatmap so it is easy to spot slower APIs.
-
-Error Response By Endpoint
-Shows whether any non-success responses have occurred for an endpoint in the last 10 minutes.
-
-200 http_requests
-Shows the trend of successful HTTP requests over time.
-
-Requests per 5min Interval
-Shows how many requests were made every 5 minutes, grouped by app, endpoint, and status.
-
-Logs Volume
-Shows the number of logs over time by log level, and can be clicked to drill into the matching logs.
-
-If you want, I can also turn these into slightly more polished one-line descriptions formatted exactly for the Grafana panel description field.
+{
+  "id": 16,
+  "type": "barchart",
+  "title": "Logs Volume",
+  "description": "Shows the number of logs over time by log level and can be clicked to drill into the matching logs.",
+  "gridPos": {
+    "x": 0,
+    "y": 73,
+    "h": 13,
+    "w": 24
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "lineWidth": 0,
+        "fillOpacity": 100,
+        "gradientMode": "none",
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "axisBorderShow": false,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        },
+        "axisSoftMin": 0
+      },
+      "color": {
+        "mode": "palette-classic"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      },
+      "fieldMinMax": false,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Drilldown",
+          "url": "/d/bdw7mql6d5eyob1/ks-app-usage?orgId=3&viewPanel=panel-17&${AppList:queryparam}&var-level=${__series.name}&from=${__value.time}"
+        }
+      ],
+      "noValue": "0",
+      "unit": "short"
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "error"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "dark-red",
+              "mode": "fixed"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "info"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "green",
+              "mode": "fixed"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "log"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "#8e8e8e",
+              "mode": "fixed"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "DEBUG"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "blue",
+              "mode": "fixed"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "transformations": [
+    {
+      "id": "calculateField",
+      "options": {
+        "mode": "binary",
+        "reduce": {
+          "reducer": "sum"
+        },
+        "binary": {
+          "operator": "+",
+          "left": {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            }
+          },
+          "right": {
+            "fixed": "299999"
+          }
+        },
+        "alias": "binEnd",
+        "replaceFields": false
+      }
+    },
+    {
+      "id": "organize",
+      "options": {}
+    }
+  ],
+  "pluginVersion": "12.2.0",
+  "targets": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "effts18osq9s0d"
+      },
+      "direction": "backward",
+      "editorMode": "code",
+      "expr": "sum by(log_level) (\r\ncount_over_time({service_name=~\"${AppList:pipe}.*\"}\r\n!~ \"GET .*?/metrics.*? 200\" \r\n!~ \"^\\\\s*$\" \r\n| logfmt\r\n|~ \"$level\"\r\n| label_format log_level=`{{.detected_level | default \"log\"}}`\r\n[$__interval]\r\n)\r\n)",
+      "legendFormat": "{{log_level}}",
+      "queryType": "range",
+      "refId": "A",
+      "step": "5m"
+    }
+  ],
+  "datasource": {
+    "type": "loki",
+    "uid": "effts18osq9s0d"
+  },
+  "interval": "5m",
+  "options": {
+    "orientation": "vertical",
+    "xTickLabelRotation": 0,
+    "xTickLabelSpacing": 0,
+    "showValue": "auto",
+    "stacking": "normal",
+    "groupWidth": 0.7,
+    "barWidth": 0.6,
+    "barRadius": 0.05,
+    "fullHighlight": false,
+    "tooltip": {
+      "mode": "single",
+      "sort": "desc",
+      "hideZeros": false
+    },
+    "legend": {
+      "showLegend": true,
+      "displayMode": "list",
+      "placement": "bottom",
+      "calcs": [
+        "sum"
+      ]
+    },
+    "text": {
+      "valueSize": 12
+    },
+    "xField": "Time"
+  }
+}
