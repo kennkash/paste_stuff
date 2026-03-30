@@ -1,17 +1,9 @@
-This is the current logql query I have for the target logs panel: 
-{service_name=~"${AppList:pipe}.*"} !~ "GET .*?/metrics.*? 200" !~ "^\\s*$" | logfmt | detected_level=~"$level"
-
-
-
-I have this bar chart that drills down to the log panel when a section of the bar chart is clicked. 
-
 {
-  "id": 16,
-  "type": "barchart",
-  "title": "Logs Volume",
-  "description": "",
+  "id": 22,
+  "type": "timeseries",
+  "title": "Percent of 5xx Requests",
   "gridPos": {
-    "x": 0,
+    "x": 12,
     "y": 0,
     "h": 8,
     "w": 12
@@ -19,9 +11,22 @@ I have this bar chart that drills down to the log panel when a section of the ba
   "fieldConfig": {
     "defaults": {
       "custom": {
-        "lineWidth": 0,
-        "fillOpacity": 100,
+        "drawStyle": "line",
+        "lineInterpolation": "linear",
+        "barAlignment": 0,
+        "barWidthFactor": 0.6,
+        "lineWidth": 1,
+        "fillOpacity": 0,
         "gradientMode": "none",
+        "spanNulls": false,
+        "insertNulls": false,
+        "showPoints": "auto",
+        "showValues": false,
+        "pointSize": 5,
+        "stacking": {
+          "mode": "none",
+          "group": "A"
+        },
         "axisPlacement": "auto",
         "axisLabel": "",
         "axisColorMode": "text",
@@ -36,9 +41,9 @@ I have this bar chart that drills down to the log panel when a section of the ba
           "legend": false
         },
         "thresholdsStyle": {
-          "mode": "off"
+          "mode": "area"
         },
-        "axisSoftMin": -1
+        "axisSoftMax": 1
       },
       "color": {
         "mode": "palette-classic"
@@ -53,174 +58,48 @@ I have this bar chart that drills down to the log panel when a section of the ba
           },
           {
             "color": "red",
-            "value": 80
+            "value": 0.1
           }
         ]
       },
-      "fieldMinMax": false,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Drilldown",
-          "url": "/d/bdw7mql6d5eyob1/ks-app-usage?orgId=3&viewPanel=panel-17&${app:queryparam}&${job:queryparam}&var-level=${__field.labels.log_level}&to=${__value.time}&time=${__value.time}&time.window=599000\n"
-        }
-      ],
-      "noValue": "0",
-      "unit": "short"
+      "unit": "percentunit"
     },
-    "overrides": [
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "ERROR"
-        },
-        "properties": [
-          {
-            "id": "color",
-            "value": {
-              "fixedColor": "dark-red",
-              "mode": "fixed"
-            }
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "info"
-        },
-        "properties": [
-          {
-            "id": "color",
-            "value": {
-              "fixedColor": "green",
-              "mode": "fixed"
-            }
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "Time"
-        },
-        "properties": [
-          {
-            "id": "color",
-            "value": {
-              "fixedColor": "orange",
-              "mode": "fixed"
-            }
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "DEBUG"
-        },
-        "properties": [
-          {
-            "id": "color",
-            "value": {
-              "fixedColor": "blue",
-              "mode": "fixed"
-            }
-          }
-        ]
-      }
-    ]
+    "overrides": []
   },
-  "transformations": [
-    {
-      "id": "calculateField",
-      "options": {
-        "alias": "ERRORS",
-        "binary": {
-          "left": "ERROR",
-          "right": "0"
-        },
-        "mode": "binary",
-        "reduce": {
-          "reducer": "sum"
-        }
-      }
-    },
-    {
-      "id": "organize",
-      "options": {
-        "excludeByName": {
-          "ERROR": false,
-          "ERRORS": true
-        },
-        "includeByName": {},
-        "indexByName": {
-          "ERROR": 2,
-          "ERRORS": 4,
-          "INFO": 1,
-          "Time": 0,
-          "WARN": 3
-        },
-        "renameByName": {
-          "ERROR": "ERROR",
-          "ERRORS": "ERROR",
-          "INFO": "INFO",
-          "WARN": "WARN"
-        }
-      }
-    }
-  ],
   "pluginVersion": "12.2.0",
   "targets": [
     {
       "datasource": {
-        "type": "loki",
-        "uid": "effts18osq9s0d"
+        "type": "prometheus",
+        "uid": "fe3y4wzolbqiof"
       },
-      "direction": "backward",
       "editorMode": "code",
-      "expr": "sum by(detected_level) (\r\ncount_over_time({service_name=~\"${AppList:pipe}.*\"}[5m])\r\n)",
-      "legendFormat": "{{detected_level}}",
-      "queryType": "range",
-      "refId": "A",
-      "step": "5m"
+      "exemplar": true,
+      "expr": "sum by(handler) (http_requests_total{app_name=~\"${AppList:pipe}\", status=~\"5.*\", handler!=\"/metrics\"}) / sum by(handler) (http_requests_total{app_name=~\"${AppList:pipe}\", handler!=\"/metrics\"})",
+      "interval": "",
+      "legendFormat": "{{handler}}",
+      "range": true,
+      "refId": "A"
     }
   ],
   "datasource": {
-    "type": "loki",
-    "uid": "effts18osq9s0d"
+    "type": "prometheus",
+    "uid": "fe3y4wzolbqiof"
   },
   "options": {
-    "orientation": "vertical",
-    "xTickLabelRotation": 0,
-    "xTickLabelSpacing": 0,
-    "showValue": "auto",
-    "stacking": "normal",
-    "groupWidth": 0.7,
-    "barWidth": 0.6,
-    "barRadius": 0.05,
-    "fullHighlight": false,
     "tooltip": {
       "mode": "single",
-      "sort": "desc",
+      "sort": "none",
       "hideZeros": false
     },
     "legend": {
       "showLegend": true,
       "displayMode": "list",
       "placement": "bottom",
-      "calcs": [
-        "sum"
-      ]
-    },
-    "text": {
-      "valueSize": 12
-    },
-    "xField": "Time"
+      "calcs": []
+    }
   }
 }
 
 
-I have a couple issues... if the log doesn't have the detected_level field, it shows "Value" in the legend when I wish it would show "log" -- then when these logs are drilled down, it shows all logs because it keeps detected_level blank.
-
-How can I change the legend for empty detected_levels and also filter down correctly in the drilldown? 
+how can I make the above panel chart all statuses that are not 200 instead of just 500, and have the legend show the status and the handler (or endpoint)
