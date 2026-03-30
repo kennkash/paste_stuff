@@ -1,3 +1,8 @@
+This is the current logql query I have for the target logs panel: 
+{service_name=~"${AppList:pipe}.*"} !~ "GET .*?/metrics.*? 200" !~ "^\\s*$" | logfmt | detected_level=~"$level"
+
+
+
 I have this bar chart that drills down to the log panel when a section of the bar chart is clicked. 
 
 {
