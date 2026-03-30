@@ -1,3 +1,20 @@
+sum by (handler, status) (
+  http_requests_total{
+    app_name=~"${AppList:pipe}",
+    status!="200",
+    handler!="/metrics"
+  }
+)
+/
+ignoring(status)
+sum by (handler) (
+  http_requests_total{
+    app_name=~"${AppList:pipe}",
+    handler!="/metrics"
+  }
+)
+
+
 {
   "id": 22,
   "type": "timeseries",
