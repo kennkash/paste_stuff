@@ -1,0 +1,221 @@
+I have this bar chart that drills down to the log panel when a section of the bar chart is clicked. 
+
+{
+  "id": 16,
+  "type": "barchart",
+  "title": "Logs Volume",
+  "description": "",
+  "gridPos": {
+    "x": 0,
+    "y": 0,
+    "h": 8,
+    "w": 12
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "lineWidth": 0,
+        "fillOpacity": 100,
+        "gradientMode": "none",
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "axisBorderShow": false,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        },
+        "axisSoftMin": -1
+      },
+      "color": {
+        "mode": "palette-classic"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      },
+      "fieldMinMax": false,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Drilldown",
+          "url": "/d/bdw7mql6d5eyob1/ks-app-usage?orgId=3&viewPanel=panel-17&${app:queryparam}&${job:queryparam}&var-level=${__field.labels.log_level}&to=${__value.time}&time=${__value.time}&time.window=599000\n"
+        }
+      ],
+      "noValue": "0",
+      "unit": "short"
+    },
+    "overrides": [
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "ERROR"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "dark-red",
+              "mode": "fixed"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "info"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "green",
+              "mode": "fixed"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "Time"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "orange",
+              "mode": "fixed"
+            }
+          }
+        ]
+      },
+      {
+        "matcher": {
+          "id": "byName",
+          "options": "DEBUG"
+        },
+        "properties": [
+          {
+            "id": "color",
+            "value": {
+              "fixedColor": "blue",
+              "mode": "fixed"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "transformations": [
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "ERRORS",
+        "binary": {
+          "left": "ERROR",
+          "right": "0"
+        },
+        "mode": "binary",
+        "reduce": {
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "ERROR": false,
+          "ERRORS": true
+        },
+        "includeByName": {},
+        "indexByName": {
+          "ERROR": 2,
+          "ERRORS": 4,
+          "INFO": 1,
+          "Time": 0,
+          "WARN": 3
+        },
+        "renameByName": {
+          "ERROR": "ERROR",
+          "ERRORS": "ERROR",
+          "INFO": "INFO",
+          "WARN": "WARN"
+        }
+      }
+    }
+  ],
+  "pluginVersion": "12.2.0",
+  "targets": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "effts18osq9s0d"
+      },
+      "direction": "backward",
+      "editorMode": "code",
+      "expr": "sum by(detected_level) (\r\ncount_over_time({service_name=~\"${AppList:pipe}.*\"}[5m])\r\n)",
+      "legendFormat": "{{detected_level}}",
+      "queryType": "range",
+      "refId": "A",
+      "step": "5m"
+    }
+  ],
+  "datasource": {
+    "type": "loki",
+    "uid": "effts18osq9s0d"
+  },
+  "options": {
+    "orientation": "vertical",
+    "xTickLabelRotation": 0,
+    "xTickLabelSpacing": 0,
+    "showValue": "auto",
+    "stacking": "normal",
+    "groupWidth": 0.7,
+    "barWidth": 0.6,
+    "barRadius": 0.05,
+    "fullHighlight": false,
+    "tooltip": {
+      "mode": "single",
+      "sort": "desc",
+      "hideZeros": false
+    },
+    "legend": {
+      "showLegend": true,
+      "displayMode": "list",
+      "placement": "bottom",
+      "calcs": [
+        "sum"
+      ]
+    },
+    "text": {
+      "valueSize": 12
+    },
+    "xField": "Time"
+  }
+}
+
+
+I have a couple issues... if the log doesn't have the detected_level field, it shows "Value" in the legend when I wish it would show "log" -- then when these logs are drilled down, it shows all logs because it keeps detected_level blank.
+
+How can I change the legend for empty detected_levels and also filter down correctly in the drilldown? 
