@@ -6,6 +6,229 @@
       "colorInfo": "#1428A0",
 
       "colorLink": "#1428A0",
+      "colorLinkHover": "#1C36B8",
+      "colorLinkActive": "#0F1F7A",
+
+      "colorSuccess": "#2E8B57",
+      "colorWarning": "#C78A00",
+      "colorError": "#C43D3D",
+
+      "colorText": "#000000",
+      "colorTextSecondary": "#4D4D4D",
+      "colorTextTertiary": "#737373",
+      "colorTextQuaternary": "#9A9A9A",
+
+      "colorBgBase": "#FFFFFF",
+      "colorBgLayout": "#F5F5F5",
+      "colorBgContainer": "#FFFFFF",
+      "colorBgElevated": "#FFFFFF",
+      "colorBgSpotlight": "#000000",
+
+      "colorBorder": "#D9D9D9",
+      "colorBorderSecondary": "#E8E8E8",
+
+      "colorFill": "rgba(0, 0, 0, 0.04)",
+      "colorFillSecondary": "rgba(0, 0, 0, 0.06)",
+      "colorFillTertiary": "rgba(0, 0, 0, 0.08)",
+      "colorFillQuaternary": "rgba(0, 0, 0, 0.02)",
+
+      "controlItemBgHover": "rgba(20, 40, 160, 0.05)",
+      "controlItemBgActive": "rgba(20, 40, 160, 0.09)",
+      "controlItemBgActiveHover": "rgba(20, 40, 160, 0.12)",
+
+      "colorPrimaryBg": "#F7F9FC",
+      "colorPrimaryBgHover": "#EEF2F7",
+      "colorPrimaryBorder": "#D6DDEA",
+      "colorPrimaryBorderHover": "#BCC9E0",
+      "colorPrimaryHover": "#1C36B8",
+      "colorPrimaryActive": "#0F1F7A",
+      "colorPrimaryText": "#1428A0",
+      "colorPrimaryTextHover": "#1C36B8",
+      "colorPrimaryTextActive": "#0F1F7A",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  },
+
+  "darkTheme": {
+    "algorithm": "dark",
+    "token": {
+      "colorPrimary": "#1428A0",
+      "colorInfo": "#1428A0",
+
+      "colorLink": "#6E86FF",
+      "colorLinkHover": "#96A8FF",
+      "colorLinkActive": "#4E68E6",
+
+      "colorSuccess": "#4FB06D",
+      "colorWarning": "#D9A441",
+      "colorError": "#DF6666",
+
+      "colorText": "#FFFFFF",
+      "colorTextSecondary": "rgba(255, 255, 255, 0.78)",
+      "colorTextTertiary": "rgba(255, 255, 255, 0.56)",
+      "colorTextQuaternary": "rgba(255, 255, 255, 0.36)",
+
+      "colorBgBase": "#000000",
+      "colorBgLayout": "#0B0B0B",
+      "colorBgContainer": "#121212",
+      "colorBgElevated": "#1A1A1A",
+      "colorBgSpotlight": "#1F1F1F",
+
+      "colorBorder": "#2A2A2A",
+      "colorBorderSecondary": "#202020",
+
+      "colorFill": "rgba(255, 255, 255, 0.06)",
+      "colorFillSecondary": "rgba(255, 255, 255, 0.09)",
+      "colorFillTertiary": "rgba(255, 255, 255, 0.12)",
+      "colorFillQuaternary": "rgba(255, 255, 255, 0.03)",
+
+      "controlItemBgHover": "rgba(20, 40, 160, 0.18)",
+      "controlItemBgActive": "rgba(20, 40, 160, 0.26)",
+      "controlItemBgActiveHover": "rgba(20, 40, 160, 0.32)",
+
+      "colorPrimaryBg": "#111827",
+      "colorPrimaryBgHover": "#172033",
+      "colorPrimaryBorder": "#23304D",
+      "colorPrimaryBorderHover": "#2E4273",
+      "colorPrimaryHover": "#3050D1",
+      "colorPrimaryActive": "#10207F",
+      "colorPrimaryText": "#A9BBFF",
+      "colorPrimaryTextHover": "#C3CFFF",
+      "colorPrimaryTextActive": "#7E97FF",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  }
+}
+
+
+---- 
+minimal
+{
+  "lightTheme": {
+    "algorithm": "default",
+    "token": {
+      "colorPrimary": "#1428A0",
+      "colorInfo": "#1428A0",
+
+      "colorLink": "#1428A0",
+      "colorLinkHover": "#1C36B8",
+      "colorLinkActive": "#0F1F7A",
+
+      "colorSuccess": "#2E8B57",
+      "colorWarning": "#C78A00",
+      "colorError": "#C43D3D",
+
+      "colorText": "#000000",
+      "colorTextSecondary": "#4D4D4D",
+      "colorTextTertiary": "#737373",
+      "colorTextQuaternary": "#9A9A9A",
+
+      "colorBgBase": "#FFFFFF",
+      "colorBgLayout": "#F7F7F7",
+      "colorBgContainer": "#FFFFFF",
+      "colorBgElevated": "#FFFFFF",
+      "colorBgSpotlight": "#111111",
+
+      "colorBorder": "#E3E3E3",
+      "colorBorderSecondary": "#EEEEEE",
+
+      "colorFill": "rgba(0, 0, 0, 0.03)",
+      "colorFillSecondary": "rgba(0, 0, 0, 0.05)",
+      "colorFillTertiary": "rgba(0, 0, 0, 0.07)",
+      "colorFillQuaternary": "rgba(0, 0, 0, 0.02)",
+
+      "controlItemBgHover": "rgba(20, 40, 160, 0.05)",
+      "controlItemBgActive": "rgba(20, 40, 160, 0.08)",
+      "controlItemBgActiveHover": "rgba(20, 40, 160, 0.11)",
+
+      "colorPrimaryBg": "#F6F7F8",
+      "colorPrimaryBgHover": "#EEF1F4",
+      "colorPrimaryBorder": "#D8DEE8",
+      "colorPrimaryBorderHover": "#BDC9DA",
+      "colorPrimaryHover": "#1C36B8",
+      "colorPrimaryActive": "#0F1F7A",
+      "colorPrimaryText": "#1428A0",
+      "colorPrimaryTextHover": "#1C36B8",
+      "colorPrimaryTextActive": "#0F1F7A",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  },
+
+  "darkTheme": {
+    "algorithm": "dark",
+    "token": {
+      "colorPrimary": "#1428A0",
+      "colorInfo": "#1428A0",
+
+      "colorLink": "#7F96FF",
+      "colorLinkHover": "#A6B7FF",
+      "colorLinkActive": "#5873E8",
+
+      "colorSuccess": "#4FB06D",
+      "colorWarning": "#D9A441",
+      "colorError": "#DF6666",
+
+      "colorText": "#FFFFFF",
+      "colorTextSecondary": "rgba(255, 255, 255, 0.78)",
+      "colorTextTertiary": "rgba(255, 255, 255, 0.56)",
+      "colorTextQuaternary": "rgba(255, 255, 255, 0.36)",
+
+      "colorBgBase": "#000000",
+      "colorBgLayout": "#0D0D0D",
+      "colorBgContainer": "#101010",
+      "colorBgElevated": "#171717",
+      "colorBgSpotlight": "#1E1E1E",
+
+      "colorBorder": "#262626",
+      "colorBorderSecondary": "#1E1E1E",
+
+      "colorFill": "rgba(255, 255, 255, 0.05)",
+      "colorFillSecondary": "rgba(255, 255, 255, 0.07)",
+      "colorFillTertiary": "rgba(255, 255, 255, 0.10)",
+      "colorFillQuaternary": "rgba(255, 255, 255, 0.025)",
+
+      "controlItemBgHover": "rgba(20, 40, 160, 0.16)",
+      "controlItemBgActive": "rgba(20, 40, 160, 0.22)",
+      "controlItemBgActiveHover": "rgba(20, 40, 160, 0.28)",
+
+      "colorPrimaryBg": "#15181E",
+      "colorPrimaryBgHover": "#1B2028",
+      "colorPrimaryBorder": "#293243",
+      "colorPrimaryBorderHover": "#34486F",
+      "colorPrimaryHover": "#2F4FD0",
+      "colorPrimaryActive": "#10207F",
+      "colorPrimaryText": "#A9BBFF",
+      "colorPrimaryTextHover": "#C4D0FF",
+      "colorPrimaryTextActive": "#859BFF",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+{
+  "lightTheme": {
+    "algorithm": "default",
+    "token": {
+      "colorPrimary": "#1428A0",
+      "colorInfo": "#1428A0",
+
+      "colorLink": "#1428A0",
       "colorLinkHover": "#1D38C2",
       "colorLinkActive": "#0F1F7A",
 
