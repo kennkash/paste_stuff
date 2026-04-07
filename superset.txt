@@ -1,16 +1,8 @@
-
-
-
-I updated the Alpha and Gamma permissions... how do they look?
+Okay I have updated it again, I think Alpha is how I want it.. 
 
 Alpha: 
 {
   "result": [
-    {
-      "id": 4,
-      "permission_name": "can_write",
-      "view_menu_name": "CssTemplate"
-    },
     {
       "id": 5,
       "permission_name": "can_read",
@@ -530,6 +522,7 @@ Alpha:
 }
 
 
+
 Gamma: 
 {
   "result": [
@@ -557,11 +550,6 @@ Gamma:
       "id": 16,
       "permission_name": "can_write",
       "view_menu_name": "Dashboard"
-    },
-    {
-      "id": 17,
-      "permission_name": "can_read",
-      "view_menu_name": "Database"
     },
     {
       "id": 22,
@@ -764,16 +752,6 @@ Gamma:
       "view_menu_name": "Datasource"
     },
     {
-      "id": 105,
-      "permission_name": "can_external_metadata_by_name",
-      "view_menu_name": "Datasource"
-    },
-    {
-      "id": 106,
-      "permission_name": "can_external_metadata",
-      "view_menu_name": "Datasource"
-    },
-    {
       "id": 109,
       "permission_name": "can_get_value",
       "view_menu_name": "KV"
@@ -836,11 +814,6 @@ Gamma:
     {
       "id": 123,
       "permission_name": "can_import_dashboards",
-      "view_menu_name": "Superset"
-    },
-    {
-      "id": 124,
-      "permission_name": "can_fetch_datasource_metadata",
       "view_menu_name": "Superset"
     },
     {
