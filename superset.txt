@@ -1,3 +1,110 @@
+{
+  "lightTheme": {
+    "algorithm": "default",
+    "token": {
+      "colorPrimary": "#1428a0",
+      "colorInfo": "#1428a0",
+
+      "colorLink": "#1428a0",
+      "colorLinkHover": "#2f46bf",
+      "colorLinkActive": "#0f1f7a",
+
+      "colorSuccess": "#2e8b57",
+      "colorWarning": "#d98b00",
+      "colorError": "#c73a3a",
+
+      "colorText": "#1f1f1f",
+      "colorTextSecondary": "#595959",
+      "colorTextTertiary": "#8c8c8c",
+      "colorTextQuaternary": "#bfbfbf",
+
+      "colorBgBase": "#ffffff",
+      "colorBgLayout": "#f5f7fb",
+      "colorBgContainer": "#ffffff",
+      "colorBgElevated": "#ffffff",
+      "colorBgSpotlight": "#1428a0",
+
+      "colorBorder": "#d9e0f0",
+      "colorBorderSecondary": "#e8ecf5",
+
+      "colorFill": "rgba(20, 40, 160, 0.06)",
+      "colorFillSecondary": "rgba(20, 40, 160, 0.10)",
+      "colorFillTertiary": "rgba(20, 40, 160, 0.14)",
+      "colorFillQuaternary": "rgba(20, 40, 160, 0.04)",
+
+      "controlItemBgHover": "rgba(20, 40, 160, 0.08)",
+      "controlItemBgActive": "rgba(20, 40, 160, 0.14)",
+      "controlItemBgActiveHover": "rgba(20, 40, 160, 0.18)",
+
+      "colorPrimaryBg": "#eef1ff",
+      "colorPrimaryBgHover": "#dbe2ff",
+      "colorPrimaryBorder": "#aab8ff",
+      "colorPrimaryBorderHover": "#7f93f5",
+      "colorPrimaryHover": "#2f46bf",
+      "colorPrimaryActive": "#0f1f7a",
+      "colorPrimaryText": "#1428a0",
+      "colorPrimaryTextHover": "#2f46bf",
+      "colorPrimaryTextActive": "#0f1f7a",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  },
+
+  "darkTheme": {
+    "algorithm": "dark",
+    "token": {
+      "colorPrimary": "#1428a0",
+      "colorInfo": "#1428a0",
+
+      "colorLink": "#6f86ff",
+      "colorLinkHover": "#93a3ff",
+      "colorLinkActive": "#4e67e6",
+
+      "colorSuccess": "#49aa72",
+      "colorWarning": "#d89614",
+      "colorError": "#dc4446",
+
+      "colorText": "#f3f6ff",
+      "colorTextSecondary": "rgba(243, 246, 255, 0.78)",
+      "colorTextTertiary": "rgba(243, 246, 255, 0.55)",
+      "colorTextQuaternary": "rgba(243, 246, 255, 0.35)",
+
+      "colorBgBase": "#0f172a",
+      "colorBgLayout": "#111827",
+      "colorBgContainer": "#172036",
+      "colorBgElevated": "#1b2742",
+      "colorBgSpotlight": "#20325f",
+
+      "colorBorder": "#2b3a63",
+      "colorBorderSecondary": "#22304f",
+
+      "colorFill": "rgba(255, 255, 255, 0.08)",
+      "colorFillSecondary": "rgba(255, 255, 255, 0.12)",
+      "colorFillTertiary": "rgba(255, 255, 255, 0.16)",
+      "colorFillQuaternary": "rgba(255, 255, 255, 0.04)",
+
+      "controlItemBgHover": "rgba(111, 134, 255, 0.16)",
+      "controlItemBgActive": "rgba(111, 134, 255, 0.24)",
+      "controlItemBgActiveHover": "rgba(111, 134, 255, 0.30)",
+
+      "colorPrimaryBg": "#16214a",
+      "colorPrimaryBgHover": "#1c2a5e",
+      "colorPrimaryBorder": "#31448f",
+      "colorPrimaryBorderHover": "#4960bf",
+      "colorPrimaryHover": "#3c56d6",
+      "colorPrimaryActive": "#0f1f7a",
+      "colorPrimaryText": "#93a3ff",
+      "colorPrimaryTextHover": "#b0bbff",
+      "colorPrimaryTextActive": "#6f86ff",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  }
+}
+
+
 These are the permissions set for a Alpha user... are there any concerns here?: 
 {
   "result": [
