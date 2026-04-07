@@ -9,7 +9,7 @@
       "colorLinkHover": "#1D38C2",
       "colorLinkActive": "#0F1F7A",
 
-      "colorSuccess": "#2F8F5B",
+      "colorSuccess": "#3fbc75",
       "colorWarning": "#C98900",
       "colorError": "#C43D3D",
 
