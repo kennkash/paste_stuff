@@ -1,0 +1,535 @@
+I am an admin of apache superset, these are the permissions set for a gamma user... are there any concerns here?: 
+{
+  "result": [
+    {
+      "id": 7,
+      "permission_name": "can_read",
+      "view_menu_name": "Chart"
+    },
+    {
+      "id": 8,
+      "permission_name": "can_write",
+      "view_menu_name": "Chart"
+    },
+    {
+      "id": 11,
+      "permission_name": "can_read",
+      "view_menu_name": "Dataset"
+    },
+    {
+      "id": 15,
+      "permission_name": "can_read",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 16,
+      "permission_name": "can_write",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 17,
+      "permission_name": "can_read",
+      "view_menu_name": "Database"
+    },
+    {
+      "id": 22,
+      "permission_name": "can_this_form_get",
+      "view_menu_name": "ResetMyPasswordView"
+    },
+    {
+      "id": 23,
+      "permission_name": "can_this_form_post",
+      "view_menu_name": "ResetMyPasswordView"
+    },
+    {
+      "id": 30,
+      "permission_name": "can_userinfo",
+      "view_menu_name": "UserDBModelView"
+    },
+    {
+      "id": 32,
+      "permission_name": "resetmypassword",
+      "view_menu_name": "UserDBModelView"
+    },
+    {
+      "id": 41,
+      "permission_name": "can_get",
+      "view_menu_name": "OpenApi"
+    },
+    {
+      "id": 42,
+      "permission_name": "can_show",
+      "view_menu_name": "SwaggerView"
+    },
+    {
+      "id": 43,
+      "permission_name": "can_get",
+      "view_menu_name": "MenuApi"
+    },
+    {
+      "id": 44,
+      "permission_name": "can_list",
+      "view_menu_name": "AsyncEventsRestApi"
+    },
+    {
+      "id": 45,
+      "permission_name": "can_read",
+      "view_menu_name": "AdvancedDataType"
+    },
+    {
+      "id": 46,
+      "permission_name": "can_read",
+      "view_menu_name": "AvailableDomains"
+    },
+    {
+      "id": 47,
+      "permission_name": "can_invalidate",
+      "view_menu_name": "CacheRestApi"
+    },
+    {
+      "id": 48,
+      "permission_name": "can_export",
+      "view_menu_name": "Chart"
+    },
+    {
+      "id": 50,
+      "permission_name": "can_write",
+      "view_menu_name": "DashboardFilterStateRestApi"
+    },
+    {
+      "id": 51,
+      "permission_name": "can_read",
+      "view_menu_name": "DashboardFilterStateRestApi"
+    },
+    {
+      "id": 52,
+      "permission_name": "can_write",
+      "view_menu_name": "DashboardPermalinkRestApi"
+    },
+    {
+      "id": 53,
+      "permission_name": "can_read",
+      "view_menu_name": "DashboardPermalinkRestApi"
+    },
+    {
+      "id": 54,
+      "permission_name": "can_delete_embedded",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 55,
+      "permission_name": "can_export",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 56,
+      "permission_name": "can_get_embedded",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 64,
+      "permission_name": "can_read",
+      "view_menu_name": "EmbeddedDashboard"
+    },
+    {
+      "id": 65,
+      "permission_name": "can_read",
+      "view_menu_name": "Explore"
+    },
+    {
+      "id": 66,
+      "permission_name": "can_write",
+      "view_menu_name": "ExploreFormDataRestApi"
+    },
+    {
+      "id": 67,
+      "permission_name": "can_read",
+      "view_menu_name": "ExploreFormDataRestApi"
+    },
+    {
+      "id": 68,
+      "permission_name": "can_write",
+      "view_menu_name": "ExplorePermalinkRestApi"
+    },
+    {
+      "id": 69,
+      "permission_name": "can_read",
+      "view_menu_name": "ExplorePermalinkRestApi"
+    },
+    {
+      "id": 70,
+      "permission_name": "can_edit",
+      "view_menu_name": "FilterSets"
+    },
+    {
+      "id": 71,
+      "permission_name": "can_delete",
+      "view_menu_name": "FilterSets"
+    },
+    {
+      "id": 72,
+      "permission_name": "can_list",
+      "view_menu_name": "FilterSets"
+    },
+    {
+      "id": 73,
+      "permission_name": "can_add",
+      "view_menu_name": "FilterSets"
+    },
+    {
+      "id": 79,
+      "permission_name": "can_bulk_create",
+      "view_menu_name": "Tag"
+    },
+    {
+      "id": 80,
+      "permission_name": "can_write",
+      "view_menu_name": "Tag"
+    },
+    {
+      "id": 81,
+      "permission_name": "can_read",
+      "view_menu_name": "Tag"
+    },
+    {
+      "id": 83,
+      "permission_name": "can_format_sql",
+      "view_menu_name": "SQLLab"
+    },
+    {
+      "id": 86,
+      "permission_name": "can_estimate_query_cost",
+      "view_menu_name": "SQLLab"
+    },
+    {
+      "id": 92,
+      "permission_name": "can_show",
+      "view_menu_name": "DynamicPlugin"
+    },
+    {
+      "id": 94,
+      "permission_name": "can_list",
+      "view_menu_name": "DynamicPlugin"
+    },
+    {
+      "id": 95,
+      "permission_name": "can_query_form_data",
+      "view_menu_name": "Api"
+    },
+    {
+      "id": 96,
+      "permission_name": "can_query",
+      "view_menu_name": "Api"
+    },
+    {
+      "id": 97,
+      "permission_name": "can_time_range",
+      "view_menu_name": "Api"
+    },
+    {
+      "id": 104,
+      "permission_name": "can_get",
+      "view_menu_name": "Datasource"
+    },
+    {
+      "id": 105,
+      "permission_name": "can_external_metadata_by_name",
+      "view_menu_name": "Datasource"
+    },
+    {
+      "id": 106,
+      "permission_name": "can_external_metadata",
+      "view_menu_name": "Datasource"
+    },
+    {
+      "id": 109,
+      "permission_name": "can_get_value",
+      "view_menu_name": "KV"
+    },
+    {
+      "id": 110,
+      "permission_name": "can_store",
+      "view_menu_name": "KV"
+    },
+    {
+      "id": 111,
+      "permission_name": "can_read",
+      "view_menu_name": "Profile"
+    },
+    {
+      "id": 112,
+      "permission_name": "can_list",
+      "view_menu_name": "SavedQuery"
+    },
+    {
+      "id": 113,
+      "permission_name": "can_my_queries",
+      "view_menu_name": "SqlLab"
+    },
+    {
+      "id": 114,
+      "permission_name": "can_dashboard_permalink",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 115,
+      "permission_name": "can_log",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 116,
+      "permission_name": "can_explore_json",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 117,
+      "permission_name": "can_profile",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 119,
+      "permission_name": "can_slice",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 120,
+      "permission_name": "can_explore",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 121,
+      "permission_name": "can_dashboard",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 123,
+      "permission_name": "can_import_dashboards",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 124,
+      "permission_name": "can_fetch_datasource_metadata",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 136,
+      "permission_name": "can_add",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 137,
+      "permission_name": "can_edit",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 138,
+      "permission_name": "can_download",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 139,
+      "permission_name": "can_show",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 140,
+      "permission_name": "can_delete",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 141,
+      "permission_name": "can_list",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 142,
+      "permission_name": "can_tags",
+      "view_menu_name": "TagView"
+    },
+    {
+      "id": 143,
+      "permission_name": "can_recent_activity",
+      "view_menu_name": "Log"
+    },
+    {
+      "id": 145,
+      "permission_name": "can_read",
+      "view_menu_name": "SecurityRestApi"
+    },
+    {
+      "id": 146,
+      "permission_name": "can_read",
+      "view_menu_name": "RowLevelSecurity"
+    },
+    {
+      "id": 150,
+      "permission_name": "menu_access",
+      "view_menu_name": "Action Log"
+    },
+    {
+      "id": 152,
+      "permission_name": "menu_access",
+      "view_menu_name": "Home"
+    },
+    {
+      "id": 153,
+      "permission_name": "menu_access",
+      "view_menu_name": "Data"
+    },
+    {
+      "id": 154,
+      "permission_name": "menu_access",
+      "view_menu_name": "Databases"
+    },
+    {
+      "id": 155,
+      "permission_name": "menu_access",
+      "view_menu_name": "Dashboards"
+    },
+    {
+      "id": 156,
+      "permission_name": "menu_access",
+      "view_menu_name": "Charts"
+    },
+    {
+      "id": 157,
+      "permission_name": "menu_access",
+      "view_menu_name": "Datasets"
+    },
+    {
+      "id": 159,
+      "permission_name": "menu_access",
+      "view_menu_name": "Plugins"
+    },
+    {
+      "id": 161,
+      "permission_name": "menu_access",
+      "view_menu_name": "Import Dashboards"
+    },
+    {
+      "id": 162,
+      "permission_name": "menu_access",
+      "view_menu_name": "Tags"
+    },
+    {
+      "id": 172,
+      "permission_name": "can_csv",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 173,
+      "permission_name": "can_share_dashboard",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 174,
+      "permission_name": "can_share_chart",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 255,
+      "permission_name": "can_view_query",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 256,
+      "permission_name": "can_view_chart_as_table",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 281,
+      "permission_name": "can_cache_dashboard_screenshot",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 284,
+      "permission_name": "can_drill",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 285,
+      "permission_name": "can_tag",
+      "view_menu_name": "Chart"
+    },
+    {
+      "id": 286,
+      "permission_name": "can_tag",
+      "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 330,
+      "permission_name": "can_read",
+      "view_menu_name": "Theme"
+    },
+    {
+      "id": 331,
+      "permission_name": "can_export",
+      "view_menu_name": "Theme"
+    },
+    {
+      "id": 332,
+      "permission_name": "can_write",
+      "view_menu_name": "Theme"
+    },
+    {
+      "id": 333,
+      "permission_name": "can_get_drill_info",
+      "view_menu_name": "Dataset"
+    },
+    {
+      "id": 334,
+      "permission_name": "can_read",
+      "view_menu_name": "security"
+    },
+    {
+      "id": 335,
+      "permission_name": "can_language_pack",
+      "view_menu_name": "Superset"
+    },
+    {
+      "id": 337,
+      "permission_name": "can_read",
+      "view_menu_name": "user"
+    },
+    {
+      "id": 338,
+      "permission_name": "can_delete",
+      "view_menu_name": "UserRegistrationsRestAPI"
+    },
+    {
+      "id": 339,
+      "permission_name": "can_edit",
+      "view_menu_name": "UserRegistrationsRestAPI"
+    },
+    {
+      "id": 340,
+      "permission_name": "can_show",
+      "view_menu_name": "UserRegistrationsRestAPI"
+    },
+    {
+      "id": 341,
+      "permission_name": "can_add",
+      "view_menu_name": "UserRegistrationsRestAPI"
+    },
+    {
+      "id": 342,
+      "permission_name": "can_list",
+      "view_menu_name": "UserRegistrationsRestAPI"
+    },
+    {
+      "id": 344,
+      "permission_name": "menu_access",
+      "view_menu_name": "Themes"
+    },
+    {
+      "id": 396,
+      "permission_name": "can_userinfo",
+      "view_menu_name": "UserLDAPModelView"
+    },
+    {
+      "id": 408,
+      "permission_name": "can_userinfo",
+      "view_menu_name": "UserOAuthModelView"
+    }
+  ]
+}
