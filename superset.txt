@@ -1,6 +1,21 @@
-I am an admin of apache superset, these are the permissions set for a gamma user... are there any concerns here?: 
+These are the permissions set for a Alpha user... are there any concerns here?: 
 {
   "result": [
+    {
+      "id": 4,
+      "permission_name": "can_write",
+      "view_menu_name": "CssTemplate"
+    },
+    {
+      "id": 5,
+      "permission_name": "can_read",
+      "view_menu_name": "ReportSchedule"
+    },
+    {
+      "id": 6,
+      "permission_name": "can_write",
+      "view_menu_name": "ReportSchedule"
+    },
     {
       "id": 7,
       "permission_name": "can_read",
@@ -12,8 +27,23 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "Chart"
     },
     {
+      "id": 9,
+      "permission_name": "can_read",
+      "view_menu_name": "Annotation"
+    },
+    {
+      "id": 10,
+      "permission_name": "can_write",
+      "view_menu_name": "Annotation"
+    },
+    {
       "id": 11,
       "permission_name": "can_read",
+      "view_menu_name": "Dataset"
+    },
+    {
+      "id": 12,
+      "permission_name": "can_write",
       "view_menu_name": "Dataset"
     },
     {
@@ -77,11 +107,6 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "AdvancedDataType"
     },
     {
-      "id": 46,
-      "permission_name": "can_read",
-      "view_menu_name": "AvailableDomains"
-    },
-    {
       "id": 47,
       "permission_name": "can_invalidate",
       "view_menu_name": "CacheRestApi"
@@ -125,6 +150,26 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "id": 56,
       "permission_name": "can_get_embedded",
       "view_menu_name": "Dashboard"
+    },
+    {
+      "id": 59,
+      "permission_name": "can_duplicate",
+      "view_menu_name": "Dataset"
+    },
+    {
+      "id": 60,
+      "permission_name": "can_get_or_create_dataset",
+      "view_menu_name": "Dataset"
+    },
+    {
+      "id": 62,
+      "permission_name": "can_export",
+      "view_menu_name": "Dataset"
+    },
+    {
+      "id": 63,
+      "permission_name": "can_get_column_values",
+      "view_menu_name": "Datasource"
     },
     {
       "id": 64,
@@ -175,6 +220,16 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "id": 73,
       "permission_name": "can_add",
       "view_menu_name": "FilterSets"
+    },
+    {
+      "id": 74,
+      "permission_name": "can_import_",
+      "view_menu_name": "ImportExportRestApi"
+    },
+    {
+      "id": 75,
+      "permission_name": "can_export",
+      "view_menu_name": "ImportExportRestApi"
     },
     {
       "id": 79,
@@ -232,13 +287,13 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "Datasource"
     },
     {
-      "id": 105,
-      "permission_name": "can_external_metadata_by_name",
+      "id": 107,
+      "permission_name": "can_save",
       "view_menu_name": "Datasource"
     },
     {
-      "id": 106,
-      "permission_name": "can_external_metadata",
+      "id": 108,
+      "permission_name": "can_samples",
       "view_menu_name": "Datasource"
     },
     {
@@ -307,11 +362,6 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "Superset"
     },
     {
-      "id": 124,
-      "permission_name": "can_fetch_datasource_metadata",
-      "view_menu_name": "Superset"
-    },
-    {
       "id": 136,
       "permission_name": "can_add",
       "view_menu_name": "Tags"
@@ -357,29 +407,9 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "SecurityRestApi"
     },
     {
-      "id": 146,
-      "permission_name": "can_read",
-      "view_menu_name": "RowLevelSecurity"
-    },
-    {
-      "id": 150,
-      "permission_name": "menu_access",
-      "view_menu_name": "Action Log"
-    },
-    {
       "id": 152,
       "permission_name": "menu_access",
       "view_menu_name": "Home"
-    },
-    {
-      "id": 153,
-      "permission_name": "menu_access",
-      "view_menu_name": "Data"
-    },
-    {
-      "id": 154,
-      "permission_name": "menu_access",
-      "view_menu_name": "Databases"
     },
     {
       "id": 155,
@@ -397,9 +427,9 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "Datasets"
     },
     {
-      "id": 159,
+      "id": 158,
       "permission_name": "menu_access",
-      "view_menu_name": "Plugins"
+      "view_menu_name": "Manage"
     },
     {
       "id": 161,
@@ -410,6 +440,26 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "id": 162,
       "permission_name": "menu_access",
       "view_menu_name": "Tags"
+    },
+    {
+      "id": 163,
+      "permission_name": "menu_access",
+      "view_menu_name": "Alerts & Report"
+    },
+    {
+      "id": 164,
+      "permission_name": "menu_access",
+      "view_menu_name": "Annotation Layers"
+    },
+    {
+      "id": 169,
+      "permission_name": "all_datasource_access",
+      "view_menu_name": "all_datasource_access"
+    },
+    {
+      "id": 170,
+      "permission_name": "all_database_access",
+      "view_menu_name": "all_database_access"
     },
     {
       "id": 172,
@@ -457,21 +507,6 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "view_menu_name": "Dashboard"
     },
     {
-      "id": 330,
-      "permission_name": "can_read",
-      "view_menu_name": "Theme"
-    },
-    {
-      "id": 331,
-      "permission_name": "can_export",
-      "view_menu_name": "Theme"
-    },
-    {
-      "id": 332,
-      "permission_name": "can_write",
-      "view_menu_name": "Theme"
-    },
-    {
       "id": 333,
       "permission_name": "can_get_drill_info",
       "view_menu_name": "Dataset"
@@ -515,11 +550,6 @@ I am an admin of apache superset, these are the permissions set for a gamma user
       "id": 342,
       "permission_name": "can_list",
       "view_menu_name": "UserRegistrationsRestAPI"
-    },
-    {
-      "id": 344,
-      "permission_name": "menu_access",
-      "view_menu_name": "Themes"
     },
     {
       "id": 396,
