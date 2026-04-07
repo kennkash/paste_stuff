@@ -1,3 +1,110 @@
+{
+  "lightTheme": {
+    "algorithm": "default",
+    "token": {
+      "colorPrimary": "#1428A0",
+      "colorInfo": "#1428A0",
+
+      "colorLink": "#1428A0",
+      "colorLinkHover": "#1D38C2",
+      "colorLinkActive": "#0F1F7A",
+
+      "colorSuccess": "#2F8F5B",
+      "colorWarning": "#C98900",
+      "colorError": "#C43D3D",
+
+      "colorText": "#111111",
+      "colorTextSecondary": "#4F4F4F",
+      "colorTextTertiary": "#767676",
+      "colorTextQuaternary": "#A0A0A0",
+
+      "colorBgBase": "#FFFFFF",
+      "colorBgLayout": "#F6F7F9",
+      "colorBgContainer": "#FFFFFF",
+      "colorBgElevated": "#FFFFFF",
+      "colorBgSpotlight": "#1428A0",
+
+      "colorBorder": "#D9DDE5",
+      "colorBorderSecondary": "#E8EBF0",
+
+      "colorFill": "rgba(17, 17, 17, 0.04)",
+      "colorFillSecondary": "rgba(17, 17, 17, 0.06)",
+      "colorFillTertiary": "rgba(17, 17, 17, 0.08)",
+      "colorFillQuaternary": "rgba(17, 17, 17, 0.02)",
+
+      "controlItemBgHover": "rgba(20, 40, 160, 0.06)",
+      "controlItemBgActive": "rgba(20, 40, 160, 0.10)",
+      "controlItemBgActiveHover": "rgba(20, 40, 160, 0.14)",
+
+      "colorPrimaryBg": "#EEF2FF",
+      "colorPrimaryBgHover": "#E2E8FF",
+      "colorPrimaryBorder": "#B9C5F2",
+      "colorPrimaryBorderHover": "#8EA2E6",
+      "colorPrimaryHover": "#1D38C2",
+      "colorPrimaryActive": "#0F1F7A",
+      "colorPrimaryText": "#1428A0",
+      "colorPrimaryTextHover": "#1D38C2",
+      "colorPrimaryTextActive": "#0F1F7A",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  },
+
+  "darkTheme": {
+    "algorithm": "dark",
+    "token": {
+      "colorPrimary": "#4F6DFF",
+      "colorInfo": "#4F6DFF",
+
+      "colorLink": "#7F96FF",
+      "colorLinkHover": "#A2B2FF",
+      "colorLinkActive": "#5B76F0",
+
+      "colorSuccess": "#55B87A",
+      "colorWarning": "#E0A93B",
+      "colorError": "#E06A6A",
+
+      "colorText": "#F5F7FA",
+      "colorTextSecondary": "rgba(245, 247, 250, 0.78)",
+      "colorTextTertiary": "rgba(245, 247, 250, 0.56)",
+      "colorTextQuaternary": "rgba(245, 247, 250, 0.36)",
+
+      "colorBgBase": "#10141C",
+      "colorBgLayout": "#151B24",
+      "colorBgContainer": "#1A2230",
+      "colorBgElevated": "#202A3A",
+      "colorBgSpotlight": "#283A6B",
+
+      "colorBorder": "#313C4F",
+      "colorBorderSecondary": "#273142",
+
+      "colorFill": "rgba(255, 255, 255, 0.05)",
+      "colorFillSecondary": "rgba(255, 255, 255, 0.08)",
+      "colorFillTertiary": "rgba(255, 255, 255, 0.11)",
+      "colorFillQuaternary": "rgba(255, 255, 255, 0.03)",
+
+      "controlItemBgHover": "rgba(79, 109, 255, 0.16)",
+      "controlItemBgActive": "rgba(79, 109, 255, 0.22)",
+      "controlItemBgActiveHover": "rgba(79, 109, 255, 0.28)",
+
+      "colorPrimaryBg": "#1B2757",
+      "colorPrimaryBgHover": "#22316D",
+      "colorPrimaryBorder": "#3E57B7",
+      "colorPrimaryBorderHover": "#5A75E0",
+      "colorPrimaryHover": "#6E88FF",
+      "colorPrimaryActive": "#3F5BDB",
+      "colorPrimaryText": "#AAB8FF",
+      "colorPrimaryTextHover": "#C2CCFF",
+      "colorPrimaryTextActive": "#8EA1FF",
+
+      "borderRadius": 8,
+      "wireframe": false
+    }
+  }
+}
+
+
 Okay I have updated it again, I think Alpha is how I want it.. 
 
 Alpha: 
