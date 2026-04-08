@@ -1,3 +1,80 @@
+Defaulted container "superset" out of: superset, wait-for-postgres-redis (init)
+Loaded your LOCAL configuration at [/app/pythonpath/superset_config.py]
+/app/.venv/lib/python3.10/site-packages/flask_limiter/extension.py:324: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+2026-04-08 15:32:09,716:INFO:superset_config:admin_auth blueprint registered
+2026-04-08 15:32:09,718:INFO:alembic.runtime.migration:Context impl PostgresqlImpl.
+2026-04-08 15:32:09,718:INFO:alembic.runtime.migration:Will assume transactional DDL.
+2026-04-08 15:32:10,121:INFO:superset.app:Syncing configuration to database...
+2026-04-08 15:32:10,130:INFO:superset.app:Configuration sync to database completed successfully
+/app/.venv/lib/python3.10/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+absolutely not recommended!
+
+Please specify a different user using the --uid option.
+
+User information: uid=0 euid=0 gid=0 egid=0
+
+  warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+ 
+ -------------- celery@superset-worker-5697b8fcc9-sgvvn v5.5.2 (immunity)
+--- ***** ----- 
+-- ******* ---- Linux-5.14.0-229.el9.x86_64-x86_64-with-glibc2.36 2026-04-08 15:32:10
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         __main__:0x7fc2af8d01f0
+- ** ---------- .> transport:   redis://superset-redis-master:6379/0
+- ** ---------- .> results:     redis://superset-redis-master:6379/1
+- *** --- * --- .> concurrency: 64 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[2026-04-08 15:36:55,040: ERROR/ForkPoolWorker-64] Encountered an unexpected error when requesting url http://superset.superset.svc.cluster.local:8088/superset/slice/107/?standalone=true
+Traceback (most recent call last):
+  File "/app/superset/utils/webdriver.py", line 262, in get_screenshot
+    dashboard_height = page.evaluate(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/sync_api/_generated.py", line 8530, in evaluate
+    self._sync(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+    return task.result()
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_page.py", line 467, in evaluate
+    return await self._main_frame.evaluate(expression, arg)
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_frame.py", line 278, in evaluate
+    await self._channel.send(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 61, in send
+    return await self._connection.wrap_api_call(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 528, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.evaluate: TypeError: Cannot read properties of null (reading 'scrollHeight')
+    at eval (eval at evaluate (:234:30), <anonymous>:1:43)
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+[2026-04-08 15:50:03,426: ERROR/ForkPoolWorker-2] Encountered an unexpected error when requesting url http://superset.superset.svc.cluster.local:8088/superset/slice/101/?standalone=true
+Traceback (most recent call last):
+  File "/app/superset/utils/webdriver.py", line 262, in get_screenshot
+    dashboard_height = page.evaluate(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/sync_api/_generated.py", line 8530, in evaluate
+    self._sync(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+    return task.result()
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_page.py", line 467, in evaluate
+    return await self._main_frame.evaluate(expression, arg)
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_frame.py", line 278, in evaluate
+    await self._channel.send(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 61, in send
+    return await self._connection.wrap_api_call(
+  File "/app/.venv/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 528, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.evaluate: TypeError: Cannot read properties of null (reading 'scrollHeight')
+    at eval (eval at evaluate (:234:30), <anonymous>:1:43)
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+
+
 NAME                               READY   STATUS      RESTARTS   AGE
 superset-5c6b49dd57-twsld          1/1     Running     0          5m38s
 superset-init-db-vmksb             0/1     Completed   0          4m55s
