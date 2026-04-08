@@ -1,59 +1,9 @@
-kubectl logs -n superset-dev superset-init-db-2c6zd
-Defaulted container "superset-init-db" out of: superset-init-db, wait-for-postgres (init)
-Upgrading DB schema...
-Loaded your LOCAL configuration at [/app/pythonpath/superset_config.py]
-2026-04-08 15:07:24,492:ERROR:superset.app:Failed to create app
-Traceback (most recent call last):
-  File "/app/superset/app.py", line 73, in create_app
-    app_initializer.init_app()
-  File "/app/superset/initialization/__init__.py", line 633, in init_app
-    self.configure_cache()
-  File "/app/superset/initialization/__init__.py", line 688, in configure_cache
-    cache_manager.init_app(self.superset_app)
-  File "/app/superset/utils/cache_manager.py", line 92, in init_app
-    self._init_cache(app, self._thumbnail_cache, "THUMBNAIL_CACHE_CONFIG")
-  File "/app/superset/utils/cache_manager.py", line 87, in _init_cache
-    cache.init_app(app, cache_config)
-  File "/app/.venv/lib/python3.10/site-packages/flask_caching/__init__.py", line 93, in init_app
-    raise ValueError("`config` must be an instance of dict or None")
-ValueError: `config` must be an instance of dict or None
-Traceback (most recent call last):
-  File "/app/.venv/bin/superset", line 10, in <module>
-    sys.exit(superset())
-  File "/app/.venv/lib/python3.10/site-packages/click/core.py", line 1442, in __call__
-    return self.main(*args, **kwargs)
-  File "/app/.venv/lib/python3.10/site-packages/click/core.py", line 1363, in main
-    rv = self.invoke(ctx)
-  File "/app/.venv/lib/python3.10/site-packages/click/core.py", line 1827, in invoke
-    super().invoke(ctx)
-  File "/app/.venv/lib/python3.10/site-packages/click/core.py", line 1226, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-  File "/app/.venv/lib/python3.10/site-packages/click/core.py", line 794, in invoke
-    return callback(*args, **kwargs)
-  File "/app/.venv/lib/python3.10/site-packages/click/decorators.py", line 34, in new_func
-    return f(get_current_context(), *args, **kwargs)
-  File "/app/.venv/lib/python3.10/site-packages/flask/cli.py", line 355, in decorator
-    app = __ctx.ensure_object(ScriptInfo).load_app()
-  File "/app/.venv/lib/python3.10/site-packages/flask/cli.py", line 302, in load_app
-    app = self.create_app()
-  File "/app/superset/cli/main.py", line 52, in create_app
-    return create_superset_app()
-  File "/app/superset/app.py", line 73, in create_app
-    app_initializer.init_app()
-  File "/app/superset/initialization/__init__.py", line 633, in init_app
-    self.configure_cache()
-  File "/app/superset/initialization/__init__.py", line 688, in configure_cache
-    cache_manager.init_app(self.superset_app)
-  File "/app/superset/utils/cache_manager.py", line 92, in init_app
-    self._init_cache(app, self._thumbnail_cache, "THUMBNAIL_CACHE_CONFIG")
-  File "/app/superset/utils/cache_manager.py", line 87, in _init_cache
-    cache.init_app(app, cache_config)
-  File "/app/.venv/lib/python3.10/site-packages/flask_caching/__init__.py", line 93, in init_app
-    raise ValueError("`config` must be an instance of dict or None")
-ValueError: `config` must be an instance of dict or None
-
-
-
+NAME                               READY   STATUS      RESTARTS   AGE
+superset-5c6b49dd57-twsld          1/1     Running     0          5m38s
+superset-init-db-vmksb             0/1     Completed   0          4m55s
+superset-postgresql-0              1/1     Running     0          13d
+superset-redis-master-0            1/1     Running     0          13d
+superset-worker-5697b8fcc9-sgvvn   1/1     Running     0          5m50s
 
 # Reuse Redis for thumbnail storage
 THUMBNAIL_CACHE_CONFIG = RedisCache(
