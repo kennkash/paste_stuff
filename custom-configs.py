@@ -1,3 +1,18 @@
+
+# Reuse Redis for thumbnail storage
+THUMBNAIL_CACHE_CONFIG = RedisCache(
+    host="superset-redis-master",
+    port=6379,
+    db=1,
+    key_prefix="superset_thumbnails_",
+)
+
+# Optional: force thumbnails to render as a known user
+# useful if per-user auth/session behavior causes blank thumbnails
+THUMBNAIL_EXECUTORS = [FixedExecutor("admin")]
+
+WEBDRIVER_BASEURL = "http://superset.superset.svc.cluster.local:8088"
+WEBDRIVER_BASEURL_USER_FRIENDLY = "https://supersetvc.smartcloud.samsungaustin.com/"
 """
 KS Superset configuration overrides
 
