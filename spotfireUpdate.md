@@ -1,14 +1,38 @@
-Spotfire Upgrade: 10.10.3 → 14.6 LTS
-What's changing and why it matters
+Infra Side
+	- Can we get a lsit of all VMs that you would need (Give me prod and dev)
+	- With specs 
+	- Moody can work with bumjoon for DSK specs (
+		- Node Managers (services)
+		- Automation Servers
+		- APP Servers  Mos 1/2
+		- DB
+		- Cloud Clients (specs, but more importantly what is the plan Munoz to support)
+			- storage issues
 
-We are moving from Spotfire 10.10.3 to the newly released 14.6 Long-Term Support (LTS) release. This is a significant version jump that brings a modernized platform, smarter visualizations, and a stronger foundation for the analytics work our teams depend on. Key additions include:
 
-Reference Elements — overlay lines, bands, and markers on charts to highlight limits, targets, and acceptable ranges, making it immediately clear when data is in or out of spec without needing to annotate charts manually.
-Spotfire Data Science (new tier) — a new analytics layer that includes violin plots for visualizing data distribution, enhanced data functions that simplify how calculations and parameters are configured, and improved support for linking live sensor and production data to your analyses.
-Per-job automation timeouts — scheduled and automated jobs can now be given individual time limits, preventing a single long-running task from holding up other workflows.
-Improved visualization authoring — enhanced box plots, bulk formatting, and custom markers make building and maintaining complex analyses significantly faster.
-AWS S3 data connectivity — Spotfire can now pull data directly from Amazon S3 buckets via an official connector (updated for 14.6) or through Python data functions using Amazon's Boto3 library. This opens up direct integration with S3-hosted datasets without needing an intermediary.
-Expanded Python support — administrators can now supply a custom Python environment rather than being locked to the bundled version, and the platform now supports modern Python versions with NumPy 2.0-compatible libraries including Pandas. Note that Python environment management remains an admin-level concern — end users write Python data functions, but package availability is controlled server-side.
-Updated database support — the platform now supports SQL Server 2022 and PostgreSQL 15 as the Spotfire server database, keeping us aligned with current enterprise database standards. A new Library REST API (v2) also enables tighter integration with CI/CD pipelines and external tooling.
-Legacy license support — the new Data Science tier licenses can be added to existing contracts without renegotiation, which should simplify the procurement process if we choose to adopt those capabilities.
-Alongside these features, Spotfire has restructured its product into three tiers: Spotfire Analytics (core visual analytics), Spotfire Data Science (advanced, industry-specific analytics for engineers and subject matter experts), and Spotfire Enterprise (real-time decision-making at scale). As an LTS release, 14.6 will receive long-term patch support and is the recommended upgrade path for enterprise deployments. More detail on rollout timing and any impacts to existing analyses will follow in a separate communication.
+Kennedy can you look at some features of 14.6, does it have native support for S3?
+	How does the licensing work?
+		Data Scientist license, consumer
+Is it faster, more supported with python? Can people manage their python environment?
+
+
+Question for Brian/Sean
+1) Do we puase the current spotfire license reduction because it will likely behave differently in new version?
+2) Can we ask spotfire about this?
+3) Timeline for sunsetting the one in S2 (maybe very long time to give user times for migration) 
+4) All the data transfers from spotfire will go through the tunnel since most data is in S2.
+5) I think we prefer just connecting to Trino and not to the prod dbs directly. Consistentcy with Superset. More work for users, but we think better for system stability
+6) This will put a hold on other KS projects, so low code agentic platform such as n8n?
+
+User Migration Side
+	- User will need to move reports why? because it's the only they can co-exist, and spotfire has many of year junk that no one uses
+
+Moody get info from Bumjoon
+	specs	
+	add ins
+	info designer + (limitations)
+	joins in prod dbs is it allowed?
+	how long did it take DSK to make an upgrade?
+
+
+Review with Wilding
