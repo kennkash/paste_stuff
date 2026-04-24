@@ -1,0 +1,14 @@
+Spotfire Upgrade: 10.10.3 → 14.6 LTS
+What's changing and why it matters
+
+We are moving from Spotfire 10.10.3 to the newly released 14.6 Long-Term Support (LTS) release. This is a significant version jump that brings a modernized platform, smarter visualizations, and a stronger foundation for the analytics work our teams depend on. Key additions include:
+
+Reference Elements — overlay lines, bands, and markers on charts to highlight limits, targets, and acceptable ranges, making it immediately clear when data is in or out of spec without needing to annotate charts manually.
+Spotfire Data Science (new tier) — a new analytics layer that includes violin plots for visualizing data distribution, enhanced data functions that simplify how calculations and parameters are configured, and improved support for linking live sensor and production data to your analyses.
+Per-job automation timeouts — scheduled and automated jobs can now be given individual time limits, preventing a single long-running task from holding up other workflows.
+Improved visualization authoring — enhanced box plots, bulk formatting, and custom markers make building and maintaining complex analyses significantly faster.
+AWS S3 data connectivity — Spotfire can now pull data directly from Amazon S3 buckets via an official connector (updated for 14.6) or through Python data functions using Amazon's Boto3 library. This opens up direct integration with S3-hosted datasets without needing an intermediary.
+Expanded Python support — administrators can now supply a custom Python environment rather than being locked to the bundled version, and the platform now supports modern Python versions with NumPy 2.0-compatible libraries including Pandas. Note that Python environment management remains an admin-level concern — end users write Python data functions, but package availability is controlled server-side.
+Updated database support — the platform now supports SQL Server 2022 and PostgreSQL 15 as the Spotfire server database, keeping us aligned with current enterprise database standards. A new Library REST API (v2) also enables tighter integration with CI/CD pipelines and external tooling.
+Legacy license support — the new Data Science tier licenses can be added to existing contracts without renegotiation, which should simplify the procurement process if we choose to adopt those capabilities.
+Alongside these features, Spotfire has restructured its product into three tiers: Spotfire Analytics (core visual analytics), Spotfire Data Science (advanced, industry-specific analytics for engineers and subject matter experts), and Spotfire Enterprise (real-time decision-making at scale). As an LTS release, 14.6 will receive long-term patch support and is the recommended upgrade path for enterprise deployments. More detail on rollout timing and any impacts to existing analyses will follow in a separate communication.
