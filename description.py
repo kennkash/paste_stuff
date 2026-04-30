@@ -9,12 +9,18 @@ import tempfile
 import os
 
 
+
 jira_client = JiraAPIClient()
 router = APIRouter()
 
 
 def user_cost_centers(user):
-    params = {"data_type": "pageradm_employee_ghr", "MLR": "L", "gad_id": user}
+    params = {
+        "data_type": "pageradm_employee_ghr", 
+        "MLR": "L", 
+        "gad_id": user,
+        'employee_type_name': '%Dispatcher%',
+        'status_name': 'Active',}
     custom_columns = [
         "full_name",
         "smtp",
@@ -26,6 +32,19 @@ def user_cost_centers(user):
         "title",
     ]
     return getData(params=params, custom_columns=custom_columns)
+
+def dispatcher(user):
+    params = {
+        "data_type": "pageradm_employee_ghr", 
+        "MLR": "L", 
+        "gad_id": user,
+        'employee_type_name': '%Dispatcher%',
+        'status_name': 'Active',}
+    custom_columns = [
+        "employee_type_name",
+    ]
+    return getData(params=params, custom_columns=custom_columns)
+
 def format_user_information(raw_requested_users: list[str]) -> str:
     sections = []
 
@@ -192,7 +211,7 @@ async def putSpotfireTicket(request: SpotfireRequest):
                         
                         h3. Criteria for Approval
 
-                        User(s) must be in the following cost centers:
+                        Requested user(s) must be in the following cost centers:
                         - Defect Reduction
                         - Device
                         - Product Operations
@@ -204,20 +223,27 @@ async def putSpotfireTicket(request: SpotfireRequest):
 
                         h3. User(s) Information
                         {user_information}
+                        
+                        h3. Submitter
+                        {request.submitter}
 
                     """
     elif request.form_title == 'Temporary Spotfire License Request':
         description = f"""
-                        h2. Spotfire License Request
-
-                        *Submitter:* {request.submitter}
-                        *Submitted On:* {request.submit_date}
+                        h2. Admin Checks
+                        
+                        h3. Criteria for Approval
+                        
+                        Requested user(s) must be an Expat or the exception must be for HQ work
 
                         h3. Requested Users
                         {chr(10).join(f"- {u}" for u in raw_requested_users)}
+                        
+                        h3. User(s) Information
+                        {user_information}
 
-                        h3. License Type
-                        {license_type or "N/A"}
+                        h3. Expat?
+                        
 
                         h3. Exception Categories
                         {", ".join(exception_categories) if exception_categories else "None"}
