@@ -19,7 +19,6 @@ def user_cost_centers(user):
         "data_type": "pageradm_employee_ghr", 
         "MLR": "L", 
         "gad_id": user,
-        'employee_type_name': '%Dispatcher%',
         'status_name': 'Active',}
     custom_columns = [
         "full_name",
@@ -89,6 +88,21 @@ def format_user_information(raw_requested_users: list[str]) -> str:
 - Status: Error loading HR data: {str(e)}
 """
             )
+
+    return "\n".join(sections)
+
+def format_expat_information(raw_requested_users: list[str]) -> str:
+    sections = []
+
+    for user in raw_requested_users:
+        try:
+            df = dispatcher(user)
+            is_expat = df is not None and not df.empty
+
+            sections.append(f"- *{user}:* {str(is_expat)}")
+
+        except Exception as e:
+            sections.append(f"- *{user}:* Error checking expat status - {str(e)}")
 
     return "\n".join(sections)
 
@@ -195,15 +209,16 @@ async def putSpotfireTicket(request: SpotfireRequest):
             exception_details = answer[0] if answer else None
 
     # Validate required fields
-    if not verified_users:
-        raise HTTPException(status_code=400, detail="Could not verify any users in the request")
+    # if not verified_users:
+    #     raise HTTPException(status_code=400, detail="Could not verify any users in the request")
 
     # Verify the submitter
     verified_reporter = await verify_user(request.submitter)
-    if not verified_reporter:
-        raise HTTPException(status_code=400, detail="Could not verify the submitter (reporter)")
+    # if not verified_reporter:
+    #     raise HTTPException(status_code=400, detail="Could not verify the submitter (reporter)")
 
     user_information = format_user_information(raw_requested_users)
+    expat_information = format_expat_information(raw_requested_users)
     
     if request.form_title == 'Spotfire License Exception Request':
         description = f"""
@@ -218,7 +233,7 @@ async def putSpotfireTicket(request: SpotfireRequest):
                         - Defect Quality & Systems
                         - PE
 
-                        h3. Requested Users
+                        h3. Requested User(s)
                         {chr(10).join(f"- {u}" for u in raw_requested_users)}
 
                         h3. User(s) Information
@@ -236,20 +251,23 @@ async def putSpotfireTicket(request: SpotfireRequest):
                         
                         Requested user(s) must be an Expat or the exception must be for HQ work
 
-                        h3. Requested Users
+                        h3. Requested User(s)
                         {chr(10).join(f"- {u}" for u in raw_requested_users)}
                         
                         h3. User(s) Information
                         {user_information}
 
                         h3. Expat?
-                        
+                        expat_information
 
                         h3. Exception Categories
                         {", ".join(exception_categories) if exception_categories else "None"}
 
                         h3. Exception Details
                         {exception_details or "None"}
+
+                        h3. Submitter
+                        {request.submitter}
                     """
 
     # Build the Jira payload
@@ -265,12 +283,20 @@ async def putSpotfireTicket(request: SpotfireRequest):
                 "name": "Service Request with Approvals"
             },
             "customfield_14809": ", ".join(raw_requested_users), # Raw user names
-            "customfield_11811": verified_users,  # Users field
-            "reporter": {
-                "name": verified_reporter
-            }
+            # "customfield_11811": verified_users,  # Users field
+            # "reporter": {
+            #     "name": verified_reporter
+            # }
         }
     }
+
+    if verified_users:
+        payload["fields"]["customfield_11811"] = verified_users
+
+    if verified_reporter:
+        payload["fields"]["reporter"] = {
+            "name": verified_reporter
+        }
 
     # Add License Type if it exists (single select field)
     if license_type:
