@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 def user_cost_centers(user):
-    params = {"data_type": "pageradm_employee_ghr", "MLR": "L", "gad_id": {user}}
+    params = {"data_type": "pageradm_employee_ghr", "MLR": "L", "gad_id": user}
     custom_columns = [
         "full_name",
         "smtp",
@@ -26,7 +26,52 @@ def user_cost_centers(user):
         "title",
     ]
     return getData(params=params, custom_columns=custom_columns)
+def format_user_information(raw_requested_users: list[str]) -> str:
+    sections = []
 
+    for user in raw_requested_users:
+        try:
+            df = user_cost_centers(user)
+
+            if df is None or df.empty:
+                sections.append(
+                    f"""*{user}*
+- Status: Not found in HR data
+"""
+                )
+                continue
+
+            row = df.iloc[0]
+
+            full_name = row.get("full_name") or "N/A"
+            email = row.get("smtp") or "N/A"
+            status = row.get("status_name") or "N/A"
+            nt_id = row.get("nt_id") or "N/A"
+            gad_id = row.get("gad_id") or user
+            cost_center = row.get("cost_center_name") or "N/A"
+            department = row.get("dept_name") or "N/A"
+            title = row.get("title") or "N/A"
+
+            sections.append(
+                f"""*{full_name}* ({gad_id})
+- Username: {user}
+- NT ID: {nt_id}
+- Email: {email}
+- Status: {status}
+- Cost Center: *{cost_center}*
+- Department: {department}
+- Title: {title}
+"""
+            )
+
+        except Exception as e:
+            sections.append(
+                f"""*{user}*
+- Status: Error loading HR data: {str(e)}
+"""
+            )
+
+    return "\n".join(sections)
 
 
 # Define the ResponseItem model
@@ -139,6 +184,8 @@ async def putSpotfireTicket(request: SpotfireRequest):
     if not verified_reporter:
         raise HTTPException(status_code=400, detail="Could not verify the submitter (reporter)")
 
+    user_information = format_user_information(raw_requested_users)
+    
     if request.form_title == 'Spotfire License Exception Request':
         description = f"""
                         h2. Admin Checks
@@ -155,8 +202,8 @@ async def putSpotfireTicket(request: SpotfireRequest):
                         h3. Requested Users
                         {chr(10).join(f"- {u}" for u in raw_requested_users)}
 
-                        h3. Users' Cost Center
-                        {license_type or "N/A"}
+                        h3. User(s) Information
+                        {user_information}
 
                     """
     elif request.form_title == 'Temporary Spotfire License Request':
