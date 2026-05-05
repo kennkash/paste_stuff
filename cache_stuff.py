@@ -1,3 +1,14 @@
+for these api endpoints, the cache doesn't seem to clear and the stats and keys endpoints return: 
+Error getting cache stats: 'SimpleMemoryCache' object has no attribute 'stats'
+INFO:     105.193.34.127:0 - "GET /v0/stats HTTP/1.1" 500 Internal Server Error
+Error getting cache keys: 'SimpleMemoryCache' object has no attribute 'keys'
+
+Am I doing this wrong? 
+
+
+
+
+
 # api/v0/endpoints/cache_mgmt.py
 """
 Cache management endpoints for the Atlassian API.
